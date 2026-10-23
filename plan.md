@@ -18,8 +18,8 @@
 ## 2. Phase Execution Tracker
 
 - [x] **Phase 0: Project Baseline, Git Repository & TypeScript Setup** *(Completed: Commit `1c230d7`)*
-- [x] **Phase 1: Design System & Global Responsive Shell** *(Completed)*
-- [ ] **Phase 2: Supabase Client & Configuration Diagnostics**
+- [x] **Phase 1: Design System & Global Responsive Shell** *(Completed: Commit `749ab5a`)*
+- [x] **Phase 2: Supabase Client & Configuration Diagnostics** *(Completed)*
 - [ ] **Phase 3: Database Schema, Row Level Security & Demo Seed SQL**
 - [ ] **Phase 4: Authentication, Session Lifecycle & Role-Based RBAC**
 - [ ] **Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters**

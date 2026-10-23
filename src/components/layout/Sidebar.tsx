@@ -10,6 +10,7 @@ import {
   Database,
 } from 'lucide-react'
 import type { NavItem, NavTab } from '../../types/navigation'
+import { configStatus } from '../../lib/supabaseClient'
 
 export interface SidebarProps {
   activeTab: NavTab
@@ -80,15 +81,22 @@ export function Sidebar({
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              padding: '0.4rem 0.6rem',
+              padding: '0.45rem 0.65rem',
               borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
               fontSize: '0.75rem',
-              color: '#94a3b8',
+              color: '#cbd5e1',
             }}
           >
-            <Database size={14} color="#3b82f6" />
-            <span>Supabase Ready</span>
+            <span
+              className={`beacon-dot ${
+                configStatus.isConfigured ? 'beacon-emerald' : 'beacon-amber'
+              }`}
+              style={{ width: 8, height: 8 }}
+            />
+            <span style={{ fontWeight: 500 }}>
+              {configStatus.isConfigured ? 'Supabase Connected' : 'Demo Mode (Unlinked)'}
+            </span>
           </div>
         )}
 

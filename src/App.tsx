@@ -18,6 +18,7 @@ import { Badge } from './components/ui/Badge'
 import { Button } from './components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from './components/ui/Card'
 import { EmptyState } from './components/ui/EmptyState'
+import { ConfigNotice } from './components/feedback/ConfigNotice'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard')
@@ -38,6 +39,9 @@ export default function App() {
       unreadFollowupsCount={2}
       onQuickNewLead={() => showToast('Lead creation modal will connect to Supabase in Phase 6!')}
     >
+      {/* Top Supabase Diagnostic Banner & Assistant */}
+      <ConfigNotice />
+
       {/* Workshop Role Selector Bar */}
       <div
         style={{

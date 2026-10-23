@@ -77,11 +77,13 @@
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  --shadow-glass: 0 20px 25px -5px rgba(15, 23, 42, 0.2), 0 8px 10px -6px rgba(15, 23, 42, 0.2);
 
   /* Border Radii */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
 
   /* Layout Dimensions */
@@ -138,6 +140,67 @@ button, input, select, textarea {
 :focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Micro-Animations & Keyframes
+   ========================================================================== */
+
+@keyframes pulseBeacon {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(234, 179, 8, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+  }
+}
+
+@keyframes pulseEmeraldBeacon {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scalePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ==========================================================================
@@ -760,6 +823,210 @@ button, input, select, textarea {
   margin-bottom: 1.25rem;
 }
 
+/* ==========================================================================
+   Configuration Diagnostics & Setup Assistant
+   ========================================================================== */
+
+/* Top Diagnostic Ribbon */
+.config-ribbon {
+  background: linear-gradient(90deg, #1e293b, #0f172a);
+  color: #f8fafc;
+  padding: 0.55rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  animation: slideInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 0.825rem;
+  position: relative;
+  z-index: 35;
+}
+
+.config-ribbon-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.beacon-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.beacon-amber {
+  background-color: #eab308;
+  animation: pulseBeacon 2s infinite;
+}
+
+.beacon-emerald {
+  background-color: #10b981;
+  animation: pulseEmeraldBeacon 2s infinite;
+}
+
+.beacon-rose {
+  background-color: #ef4444;
+}
+
+.config-ribbon-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.config-assistant-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.775rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.config-assistant-btn:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Setup Assistant Modal */
+.config-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.config-modal-dialog {
+  background-color: #ffffff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-glass);
+  width: 100%;
+  max-width: 640px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  animation: scalePop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.config-modal-header {
+  background: linear-gradient(135deg, var(--navy-900), var(--navy-950));
+  color: #ffffff;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.config-modal-body {
+  padding: 1.5rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.config-step-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  background-color: var(--bg-app);
+}
+
+.config-step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--primary-600);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.code-snippet-box {
+  background-color: var(--navy-950);
+  color: #93c5fd;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.825rem;
+  position: relative;
+  overflow-x: auto;
+  margin: 0.65rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.725rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.code-copy-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.probe-result-box {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.825rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.probe-success {
+  background-color: var(--status-converted-bg);
+  color: var(--status-converted-text);
+  border: 1px solid var(--status-converted-border);
+}
+
+.probe-error {
+  background-color: var(--status-lost-bg);
+  color: var(--status-lost-text);
+  border: 1px solid var(--status-lost-border);
+}
+
 /* Grid Layout Utilities */
 .grid-4 {
   display: grid;
@@ -805,5 +1072,11 @@ button, input, select, textarea {
 
   .grid-4 {
     grid-template-columns: 1fr;
+  }
+
+  .config-ribbon {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
   }
 }
