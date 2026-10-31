@@ -1,4 +1,5 @@
 import { supabase, configStatus } from '../lib/supabaseClient'
+import { activitiesService } from './activitiesService'
 import type {
   Lead,
   LeadFilterState,
@@ -198,9 +199,11 @@ export const leadsService = {
             follow_ups(due_at, status)
           `)
 
-        // Role-based visibility enforcement for counsellors
+        // Role-based visibility enforcement for counsellors (includes unassigned seed leads)
         if (userRole === 'counsellor' && currentUserId) {
-          query = query.eq('assigned_to', currentUserId)
+          query = query.or(
+            `assigned_to.eq.${currentUserId},created_by.eq.${currentUserId},assigned_to.is.null`
+          )
         }
 
         // Apply Status Filter
@@ -465,7 +468,7 @@ export const leadsService = {
           .single()
 
         if (!error && data) {
-          return {
+          const createdLead: Lead = {
             id: data.id,
             full_name: data.full_name,
             email: data.email,
@@ -483,6 +486,19 @@ export const leadsService = {
             next_followup_due: null,
             next_followup_status: null,
           }
+
+          await activitiesService.logActivity({
+            lead_id: createdLead.id,
+            actor_id: currentUserId,
+            activity_type: 'created',
+            description: `Lead captured via ${createdLead.source} for ${createdLead.course_interest}`,
+            metadata: {
+              source: createdLead.source,
+              to_status: createdLead.status,
+            },
+          })
+
+          return createdLead
         }
         console.warn('[leadsService] Supabase lead creation error, falling back to local store:', error?.message)
       } catch (err) {
@@ -519,15 +535,31 @@ export const leadsService = {
     const updatedList = [newLead, ...currentLeads]
     this.saveStoredMockLeads(updatedList)
 
+    await activitiesService.logActivity({
+      lead_id: newLead.id,
+      actor_id: currentUserId || 'demo-counsellor-001',
+      actor_name: fallbackAssigneeName,
+      activity_type: 'created',
+      description: `Lead captured via ${newLead.source} for ${newLead.course_interest}`,
+      metadata: {
+        source: newLead.source,
+        to_status: newLead.status,
+      },
+    })
+
     return newLead
   },
 
   /**
    * Update an existing lead record
    */
-  async updateLead(id: string, updates: UpdateLeadInput): Promise<Lead> {
-    // 1. Live Supabase Update
-    if (configStatus.isConfigured) {
+  async updateLead(
+    id: string,
+    updates: UpdateLeadInput,
+    currentUserId?: string | null
+  ): Promise<Lead> {
+    // 1. Live Supabase Update (only when authenticated with a real Supabase session)
+    if (configStatus.isConfigured && currentUserId) {
       try {
         const updatePayload: Record<string, any> = {
           updated_at: new Date().toISOString(),
@@ -599,6 +631,56 @@ export const leadsService = {
 
     currentLeads[index] = updatedLead
     this.saveStoredMockLeads(currentLeads)
+    return updatedLead
+  },
+
+  /**
+   * Guided status progression with mandatory Lost Reason validation and automatic activity logging
+   */
+  async updateLeadStatus(
+    leadId: string,
+    fromStatus: LeadStatus,
+    toStatus: LeadStatus,
+    lostReason?: string | null,
+    currentUserId?: string | null,
+    actorName?: string
+  ): Promise<Lead> {
+    const trimmedReason = lostReason?.trim() || null
+
+    // Enforce Lost Reason Rule (matches PostgreSQL check_lost_reason constraint)
+    if (toStatus === 'Lost' && !trimmedReason) {
+      throw new Error('A valid Lost Reason is required when marking a lead as Lost.')
+    }
+
+    const effectiveLostReason = toStatus === 'Lost' ? trimmedReason : null
+
+    const updatedLead = await this.updateLead(
+      leadId,
+      {
+        status: toStatus,
+        lost_reason: effectiveLostReason,
+      },
+      currentUserId
+    )
+
+    const description =
+      toStatus === 'Lost'
+        ? `Marked as Lost — Reason: ${effectiveLostReason}`
+        : `Status changed from ${fromStatus} to ${toStatus}`
+
+    await activitiesService.logActivity({
+      lead_id: leadId,
+      actor_id: currentUserId || 'demo-counsellor-001',
+      actor_name: actorName || 'Staff Member',
+      activity_type: 'status_changed',
+      description,
+      metadata: {
+        from_status: fromStatus,
+        to_status: toStatus,
+        lost_reason: effectiveLostReason,
+      },
+    })
+
     return updatedLead
   },
 }

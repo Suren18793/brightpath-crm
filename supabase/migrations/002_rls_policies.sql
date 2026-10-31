@@ -80,6 +80,7 @@ CREATE POLICY "Role-based lead access"
     public.get_current_user_role() IN ('admin', 'manager')
     OR assigned_to = auth.uid()
     OR created_by = auth.uid()
+    OR assigned_to IS NULL
   );
 
 -- INSERT Policy:
@@ -92,7 +93,7 @@ CREATE POLICY "Authenticated staff can create leads"
 
 -- UPDATE Policy:
 -- - Admins and Managers can update any lead
--- - Counsellors can update leads they created OR are assigned to
+-- - Counsellors can update leads they created, are assigned to, or unassigned seed leads
 DROP POLICY IF EXISTS "Role-based lead updates" ON public.leads;
 CREATE POLICY "Role-based lead updates"
   ON public.leads FOR UPDATE
@@ -101,11 +102,13 @@ CREATE POLICY "Role-based lead updates"
     public.get_current_user_role() IN ('admin', 'manager')
     OR assigned_to = auth.uid()
     OR created_by = auth.uid()
+    OR assigned_to IS NULL
   )
   WITH CHECK (
     public.get_current_user_role() IN ('admin', 'manager')
     OR assigned_to = auth.uid()
     OR created_by = auth.uid()
+    OR assigned_to IS NULL
   );
 
 -- DELETE Policy:

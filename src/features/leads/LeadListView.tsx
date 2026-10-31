@@ -6,13 +6,15 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import { leadsService } from '../../services/leadsService'
-import type { Lead, LeadFilterState, LeadStats } from '../../types/leads'
+import type { Lead, LeadStatus, LeadFilterState, LeadStats } from '../../types/leads'
 import { INITIAL_LEAD_FILTERS } from '../../types/leads'
 import { LeadFilterBar } from './LeadFilterBar'
 import { LeadTable } from './LeadTable'
 import { LeadCardMobile } from './LeadCardMobile'
 import { LeadModal } from './LeadModal'
+import { LostReasonModal } from './LostReasonModal'
 import { Button } from '../../components/ui/Button'
 
 export interface LeadListViewProps {
@@ -21,7 +23,8 @@ export interface LeadListViewProps {
 }
 
 export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewProps) {
-  const { role, user } = useAuth()
+  const { role, user, profile } = useAuth()
+  const { showToast } = useToast()
 
   const [leads, setLeads] = useState<Lead[]>([])
   const [totalLeadsCount, setTotalLeadsCount] = useState<number>(0)
@@ -42,6 +45,15 @@ export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewPro
   // Modal state for Create / Edit Lead
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [leadToEdit, setLeadToEdit] = useState<Lead | null>(null)
+
+  // Status transition & Lost Reason Modal state
+  const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null)
+  const [pendingLostLead, setPendingLostLead] = useState<Lead | null>(null)
+  const [isSubmittingLost, setIsSubmittingLost] = useState<boolean>(false)
+
+  const actorName =
+    profile?.full_name ||
+    (user?.email ? user.email.split('@')[0] : role === 'counsellor' ? 'Priya Sharma' : 'Aarav Patel')
 
   // Open create modal when triggered from global header
   useEffect(() => {
@@ -108,6 +120,69 @@ export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewPro
       ...prev,
       status,
     }))
+  }
+
+  const handleStatusChange = async (lead: Lead, nextStatus: LeadStatus) => {
+    if (nextStatus === 'Lost') {
+      // Mandatory Lost Reason Rule: Intercept and open LostReasonModal
+      setPendingLostLead(lead)
+      return
+    }
+
+    setUpdatingLeadId(lead.id)
+    try {
+      await leadsService.updateLeadStatus(
+        lead.id,
+        lead.status,
+        nextStatus,
+        null,
+        user?.id,
+        actorName
+      )
+      showToast(
+        `${lead.full_name} progressed from ${lead.status} to ${nextStatus}`,
+        'success'
+      )
+      await fetchLeads()
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : 'Failed to update lead status',
+        'error'
+      )
+    } finally {
+      setUpdatingLeadId(null)
+    }
+  }
+
+  const handleConfirmLostReason = async (lostReason: string) => {
+    if (!pendingLostLead) return
+
+    setIsSubmittingLost(true)
+    setUpdatingLeadId(pendingLostLead.id)
+    try {
+      await leadsService.updateLeadStatus(
+        pendingLostLead.id,
+        pendingLostLead.status,
+        'Lost',
+        lostReason,
+        user?.id,
+        actorName
+      )
+      showToast(
+        `${pendingLostLead.full_name} marked as Lost (${lostReason})`,
+        'info'
+      )
+      setPendingLostLead(null)
+      await fetchLeads()
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : 'Failed to mark lead as Lost',
+        'error'
+      )
+    } finally {
+      setIsSubmittingLost(false)
+      setUpdatingLeadId(null)
+    }
   }
 
   return (
@@ -249,6 +324,8 @@ export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewPro
           onResetFilters={handleResetFilters}
           onSelectLead={onSelectLead}
           onEditLead={handleOpenEditModal}
+          onStatusChange={handleStatusChange}
+          updatingLeadId={updatingLeadId}
         />
       </div>
 
@@ -260,6 +337,8 @@ export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewPro
           onResetFilters={handleResetFilters}
           onSelectLead={onSelectLead}
           onEditLead={handleOpenEditModal}
+          onStatusChange={handleStatusChange}
+          updatingLeadId={updatingLeadId}
         />
       </div>
 
@@ -274,6 +353,15 @@ export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewPro
         userRole={role}
         currentUserId={user?.id}
         leadToEdit={leadToEdit}
+      />
+
+      {/* Mandatory Lost Reason Modal */}
+      <LostReasonModal
+        isOpen={Boolean(pendingLostLead)}
+        lead={pendingLostLead}
+        isSubmitting={isSubmittingLost}
+        onClose={() => setPendingLostLead(null)}
+        onConfirm={handleConfirmLostReason}
       />
     </div>
   )

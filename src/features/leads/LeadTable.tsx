@@ -8,8 +8,9 @@ import {
   Edit3,
 } from 'lucide-react'
 import type { Lead, LeadStatus, LeadFilterState } from '../../types/leads'
-import { Badge, type BadgeVariant } from '../../components/ui/Badge'
+import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
+import { LeadStatusSelect } from './LeadStatusSelect'
 
 export interface LeadTableProps {
   leads: Lead[]
@@ -19,23 +20,8 @@ export interface LeadTableProps {
   onResetFilters: () => void
   onSelectLead?: (lead: Lead) => void
   onEditLead?: (lead: Lead) => void
-}
-
-function getBadgeVariant(status: LeadStatus): BadgeVariant {
-  switch (status) {
-    case 'New':
-      return 'new'
-    case 'Contacted':
-      return 'contacted'
-    case 'Qualified':
-      return 'qualified'
-    case 'Converted':
-      return 'converted'
-    case 'Lost':
-      return 'lost'
-    default:
-      return 'neutral'
-  }
+  onStatusChange?: (lead: Lead, nextStatus: LeadStatus) => void
+  updatingLeadId?: string | null
 }
 
 export function LeadTable({
@@ -46,6 +32,8 @@ export function LeadTable({
   onResetFilters,
   onSelectLead,
   onEditLead,
+  onStatusChange,
+  updatingLeadId,
 }: LeadTableProps) {
   const handleSortToggle = (column: 'full_name' | 'status' | 'created_at') => {
     if (filters.sortBy === column) {
@@ -243,12 +231,18 @@ export function LeadTable({
                       <span className="source-tag">{lead.source}</span>
                     </td>
 
-                    {/* Status Badge + Next Followup Pill */}
+                    {/* Status Pipeline Selector + Next Followup Pill */}
                     <td>
                       <div className="lead-status-column">
-                        <Badge variant={getBadgeVariant(lead.status)}>
-                          {lead.status.toUpperCase()}
-                        </Badge>
+                        {onStatusChange ? (
+                          <LeadStatusSelect
+                            lead={lead}
+                            isUpdating={updatingLeadId === lead.id}
+                            onStatusChange={onStatusChange}
+                          />
+                        ) : (
+                          <Badge variant="neutral">{lead.status.toUpperCase()}</Badge>
+                        )}
                         {followup && (
                           <Badge variant={followup.variant} className="followup-mini-pill">
                             <Clock size={9} />

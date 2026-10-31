@@ -82,15 +82,19 @@ export function LeadModal({
         onSuccess(created)
         onClose()
       } else if (leadToEdit) {
-        const updated = await leadsService.updateLead(leadToEdit.id, {
-          full_name: formData.full_name,
-          phone: formData.phone,
-          email: formData.email || null,
-          course_interest: formData.course_interest,
-          source: formData.source,
-          assigned_to: formData.assigned_to || null,
-          notes: formData.notes || null,
-        })
+        const updated = await leadsService.updateLead(
+          leadToEdit.id,
+          {
+            full_name: formData.full_name,
+            phone: formData.phone,
+            email: formData.email || null,
+            course_interest: formData.course_interest,
+            source: formData.source,
+            assigned_to: formData.assigned_to || null,
+            notes: formData.notes || null,
+          },
+          currentUserId
+        )
 
         showToast(`Updated student enquiry for "${updated.full_name}"`, 'success')
         onSuccess(updated)

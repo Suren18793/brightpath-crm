@@ -8,8 +8,9 @@ import {
   Edit3,
 } from 'lucide-react'
 import type { Lead, LeadStatus } from '../../types/leads'
-import { Badge, type BadgeVariant } from '../../components/ui/Badge'
+import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
+import { LeadStatusSelect } from './LeadStatusSelect'
 
 export interface LeadCardMobileProps {
   leads: Lead[]
@@ -17,23 +18,8 @@ export interface LeadCardMobileProps {
   onResetFilters: () => void
   onSelectLead?: (lead: Lead) => void
   onEditLead?: (lead: Lead) => void
-}
-
-function getBadgeVariant(status: LeadStatus): BadgeVariant {
-  switch (status) {
-    case 'New':
-      return 'new'
-    case 'Contacted':
-      return 'contacted'
-    case 'Qualified':
-      return 'qualified'
-    case 'Converted':
-      return 'converted'
-    case 'Lost':
-      return 'lost'
-    default:
-      return 'neutral'
-  }
+  onStatusChange?: (lead: Lead, nextStatus: LeadStatus) => void
+  updatingLeadId?: string | null
 }
 
 export function LeadCardMobile({
@@ -42,6 +28,8 @@ export function LeadCardMobile({
   onResetFilters,
   onSelectLead,
   onEditLead,
+  onStatusChange,
+  updatingLeadId,
 }: LeadCardMobileProps) {
   if (isLoading) {
     return (
@@ -82,7 +70,7 @@ export function LeadCardMobile({
           className="mobile-lead-card"
           onClick={() => onSelectLead?.(lead)}
         >
-          {/* Card Header: Student Name + Status Badge */}
+          {/* Card Header: Student Name + Status Selector */}
           <div className="mobile-card-header">
             <div>
               <h3 className="mobile-student-name">{lead.full_name}</h3>
@@ -91,9 +79,15 @@ export function LeadCardMobile({
                 <span>{lead.course_interest}</span>
               </div>
             </div>
-            <Badge variant={getBadgeVariant(lead.status)}>
-              {lead.status.toUpperCase()}
-            </Badge>
+            {onStatusChange ? (
+              <LeadStatusSelect
+                lead={lead}
+                isUpdating={updatingLeadId === lead.id}
+                onStatusChange={onStatusChange}
+              />
+            ) : (
+              <Badge variant="neutral">{lead.status.toUpperCase()}</Badge>
+            )}
           </div>
 
           {/* Meta Details */}

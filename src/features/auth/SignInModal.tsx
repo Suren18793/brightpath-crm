@@ -293,7 +293,7 @@ export function SignInModal() {
               <button
                 type="button"
                 className="demo-action-btn"
-                onClick={() => handlePreFill('priya@brightpath.edu', 'counsellor', 'Priya Sharma')}
+                onClick={() => handlePreFill('priya.brightpath@gmail.com', 'counsellor', 'Priya Sharma')}
                 title="Fill credentials into form"
               >
                 Fill
@@ -318,7 +318,7 @@ export function SignInModal() {
               <button
                 type="button"
                 className="demo-action-btn"
-                onClick={() => handlePreFill('aarav@brightpath.edu', 'manager', 'Aarav Patel')}
+                onClick={() => handlePreFill('aarav.brightpath@gmail.com', 'manager', 'Aarav Patel')}
                 title="Fill credentials into form"
               >
                 Fill
@@ -344,7 +344,7 @@ export function SignInModal() {
                 type="button"
                 className="demo-action-btn"
                 onClick={() =>
-                  handlePreFill('dr.ramesh@brightpath.edu', 'admin', 'Dr. Ramesh Nair')
+                  handlePreFill('ramesh.brightpath@gmail.com', 'admin', 'Dr. Ramesh Nair')
                 }
                 title="Fill credentials into form"
               >
