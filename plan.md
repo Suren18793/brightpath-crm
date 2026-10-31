@@ -24,7 +24,7 @@
 - [x] **Phase 4: Authentication, Session Lifecycle & Role-Based RBAC** *(Completed: Commit `d3abad6`)*
 - [x] **Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters** *(Completed: Commit `ade7a9f`)*
 - [x] **Phase 6: Lead Creation & Edit Modal with Strict Validation** *(Completed: Commit `b94b972`)*
-- [ ] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule**
+- [x] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule** *(Completed: Commit `abc6c21`)*
 - [ ] **Phase 8: Follow-Up Scheduling & Overdue Management Engine**
 - [ ] **Phase 9: Lead Detail View & Audit Activity Timeline**
 - [ ] **Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs**
@@ -162,19 +162,15 @@
 ---
 
 ### Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule
+- **Status**: **COMPLETED** (Commit: `abc6c21`)
 - **Goal**: Implement guided status progression and enforce lost reason capture.
-- **What to Implement**:
-  - Status pipeline: `New` $\rightarrow$ `Contacted` $\rightarrow$ `Qualified` $\rightarrow$ `Converted` $\rightarrow$ `Lost`.
-  - Mandatory **Lost Reason Dialog** triggered when selecting `Lost`.
-  - Prevent saving `Lost` without a reason.
-  - Automatic activity record logged in `activities` table with metadata `{ from_status, to_status, lost_reason }`.
-- **Target Files**:
-  - `src/features/leads/LeadStatusSelect.tsx`
-  - `src/features/leads/LostReasonModal.tsx`
-  - `src/services/activitiesService.ts`
-- **Acceptance Criteria**:
-  - Status transitions persist in database.
-  - Marking `Lost` requires selecting/entering a valid reason.
+- **Delivered**:
+  - `src/services/activitiesService.ts`: Dual-mode activity audit logger (`public.activities` + LocalStorage fallback) supporting `created`, `status_changed`, `followup_added`, `followup_completed`, `note_added`, and `lead_reassigned` with structured metadata `{ from_status, to_status, lost_reason }`.
+  - `src/features/leads/LeadStatusSelect.tsx`: Interactive semantic color-coded status selector (`New`, `Contacted`, `Qualified`, `Converted`, `Lost`) with inline spinner lock and `lost_reason` caption display.
+  - `src/features/leads/LostReasonModal.tsx`: Mandatory Lost Reason gate modal with 1-click admissions reason presets, custom reason textarea, and strict non-empty validation before transitioning a lead to `Lost`.
+  - `src/services/leadsService.ts` & `supabase/migrations/002_rls_policies.sql`: Added `updateLeadStatus` enforcing the Lost Reason rule and recording audit history, plus updated counsellor scoping to include unassigned seeded leads (`assigned_to IS NULL`).
+  - `src/features/leads/LeadListView.tsx`, `LeadTable.tsx`, `LeadCardMobile.tsx`: Wired inline status progression and Lost Reason modal across desktop and mobile views with instant KPI status chip reconciliation.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
