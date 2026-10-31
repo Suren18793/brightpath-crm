@@ -1,5 +1,13 @@
 import { supabase, configStatus } from '../lib/supabaseClient'
-import type { Lead, LeadFilterState, LeadStats, LeadStatus, LeadSource } from '../types/leads'
+import type {
+  Lead,
+  LeadFilterState,
+  LeadStats,
+  LeadStatus,
+  LeadSource,
+  CreateLeadInput,
+  UpdateLeadInput,
+} from '../types/leads'
 import type { UserRole } from '../types/auth'
 
 const STORAGE_KEY = 'brightpath_crm_mock_leads'
@@ -413,5 +421,184 @@ export const leadsService = {
     }
 
     return stats
+  },
+
+  /**
+   * Create a new student lead with dual-mode Supabase/LocalStorage persistence
+   */
+  async createLead(
+    input: CreateLeadInput,
+    currentUserId?: string | null,
+    userRole?: UserRole
+  ): Promise<Lead> {
+    const trimmedName = input.full_name.trim()
+    const trimmedPhone = input.phone.trim()
+    const trimmedEmail = input.email?.trim() || null
+    const effectiveStatus: LeadStatus = input.status || 'New'
+
+    // Determine assignee
+    let assignedTo = input.assigned_to || null
+    if (!assignedTo && userRole === 'counsellor' && currentUserId) {
+      assignedTo = currentUserId
+    }
+
+    // 1. Live Supabase Insert
+    if (configStatus.isConfigured && currentUserId) {
+      try {
+        const { data, error } = await supabase
+          .from('leads')
+          .insert({
+            full_name: trimmedName,
+            phone: trimmedPhone,
+            email: trimmedEmail,
+            course_interest: input.course_interest,
+            source: input.source,
+            status: effectiveStatus,
+            assigned_to: assignedTo,
+            created_by: currentUserId,
+            notes: input.notes?.trim() || null,
+          })
+          .select(`
+            *,
+            assignee:profiles!leads_assigned_to_fkey(id, full_name)
+          `)
+          .single()
+
+        if (!error && data) {
+          return {
+            id: data.id,
+            full_name: data.full_name,
+            email: data.email,
+            phone: data.phone,
+            course_interest: data.course_interest,
+            source: data.source as LeadSource,
+            status: data.status as LeadStatus,
+            lost_reason: data.lost_reason,
+            assigned_to: data.assigned_to,
+            created_by: data.created_by,
+            notes: data.notes,
+            created_at: data.created_at,
+            updated_at: data.updated_at,
+            assignee_name: data.assignee?.full_name || 'Unassigned',
+            next_followup_due: null,
+            next_followup_status: null,
+          }
+        }
+        console.warn('[leadsService] Supabase lead creation error, falling back to local store:', error?.message)
+      } catch (err) {
+        console.warn('[leadsService] Supabase insert exception, falling back to local store:', err)
+      }
+    }
+
+    // 2. LocalStorage Fallback (Workshop Preview Mode)
+    const counsellors = await this.getCounsellors()
+    const assigneeMatch = counsellors.find((c) => c.id === assignedTo)
+    const fallbackAssigneeName =
+      assigneeMatch?.full_name.split(' (')[0] || (userRole === 'counsellor' ? 'Priya Sharma' : 'Unassigned')
+
+    const newLead: Lead = {
+      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `mock-${Date.now()}`,
+      full_name: trimmedName,
+      email: trimmedEmail,
+      phone: trimmedPhone,
+      course_interest: input.course_interest,
+      source: input.source,
+      status: effectiveStatus,
+      lost_reason: null,
+      assigned_to: assignedTo || (userRole === 'counsellor' ? 'demo-counsellor-001' : null),
+      created_by: currentUserId || 'demo-counsellor-001',
+      notes: input.notes?.trim() || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      assignee_name: fallbackAssigneeName,
+      next_followup_due: null,
+      next_followup_status: null,
+    }
+
+    const currentLeads = this.getStoredMockLeads()
+    const updatedList = [newLead, ...currentLeads]
+    this.saveStoredMockLeads(updatedList)
+
+    return newLead
+  },
+
+  /**
+   * Update an existing lead record
+   */
+  async updateLead(id: string, updates: UpdateLeadInput): Promise<Lead> {
+    // 1. Live Supabase Update
+    if (configStatus.isConfigured) {
+      try {
+        const updatePayload: Record<string, any> = {
+          updated_at: new Date().toISOString(),
+        }
+
+        if (updates.full_name !== undefined) updatePayload.full_name = updates.full_name.trim()
+        if (updates.email !== undefined) updatePayload.email = updates.email?.trim() || null
+        if (updates.phone !== undefined) updatePayload.phone = updates.phone.trim()
+        if (updates.course_interest !== undefined) updatePayload.course_interest = updates.course_interest
+        if (updates.source !== undefined) updatePayload.source = updates.source
+        if (updates.status !== undefined) updatePayload.status = updates.status
+        if (updates.lost_reason !== undefined) updatePayload.lost_reason = updates.lost_reason
+        if (updates.assigned_to !== undefined) updatePayload.assigned_to = updates.assigned_to
+        if (updates.notes !== undefined) updatePayload.notes = updates.notes?.trim() || null
+
+        const { data, error } = await supabase
+          .from('leads')
+          .update(updatePayload)
+          .eq('id', id)
+          .select(`
+            *,
+            assignee:profiles!leads_assigned_to_fkey(id, full_name)
+          `)
+          .single()
+
+        if (!error && data) {
+          return {
+            id: data.id,
+            full_name: data.full_name,
+            email: data.email,
+            phone: data.phone,
+            course_interest: data.course_interest,
+            source: data.source as LeadSource,
+            status: data.status as LeadStatus,
+            lost_reason: data.lost_reason,
+            assigned_to: data.assigned_to,
+            created_by: data.created_by,
+            notes: data.notes,
+            created_at: data.created_at,
+            updated_at: data.updated_at,
+            assignee_name: data.assignee?.full_name || 'Unassigned',
+          }
+        }
+      } catch (err) {
+        console.warn('[leadsService] Supabase update exception, updating local store:', err)
+      }
+    }
+
+    // 2. LocalStorage Fallback
+    const currentLeads = this.getStoredMockLeads()
+    const index = currentLeads.findIndex((l) => l.id === id)
+    if (index === -1) {
+      throw new Error(`Lead with id ${id} not found`)
+    }
+
+    const counsellors = await this.getCounsellors()
+    let assigneeName = currentLeads[index].assignee_name
+    if (updates.assigned_to !== undefined) {
+      const match = counsellors.find((c) => c.id === updates.assigned_to)
+      assigneeName = match?.full_name.split(' (')[0] || 'Unassigned'
+    }
+
+    const updatedLead: Lead = {
+      ...currentLeads[index],
+      ...updates,
+      assignee_name: assigneeName,
+      updated_at: new Date().toISOString(),
+    }
+
+    currentLeads[index] = updatedLead
+    this.saveStoredMockLeads(currentLeads)
+    return updatedLead
   },
 }

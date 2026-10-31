@@ -46,6 +46,40 @@ export interface LeadStats {
   lostCount: number
 }
 
+export interface CreateLeadInput {
+  full_name: string
+  email?: string | null
+  phone: string
+  course_interest: string
+  source: LeadSource
+  status?: LeadStatus
+  assigned_to?: string | null
+  notes?: string | null
+}
+
+export interface UpdateLeadInput {
+  full_name?: string
+  email?: string | null
+  phone?: string
+  course_interest?: string
+  source?: LeadSource
+  status?: LeadStatus
+  lost_reason?: string | null
+  assigned_to?: string | null
+  notes?: string | null
+}
+
+export const ACADEMY_COURSES = [
+  'JEE Advanced Masterclass',
+  'JEE Main Foundation (11th-12th)',
+  'NEET Comprehensive Medical',
+  'NEET Crash Course & Test Series',
+  'Full Stack Web Development (MERN)',
+  'Data Science & AI Bootcamp',
+  'Foundation Batch (Class 9th & 10th)',
+  'UI/UX Design Masterclass',
+] as const
+
 export const INITIAL_LEAD_FILTERS: LeadFilterState = {
   searchQuery: '',
   status: 'all',
@@ -54,3 +88,4 @@ export const INITIAL_LEAD_FILTERS: LeadFilterState = {
   sortBy: 'created_at',
   sortOrder: 'desc',
 }
+

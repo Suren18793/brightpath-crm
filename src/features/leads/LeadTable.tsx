@@ -1,14 +1,11 @@
-import React from 'react'
 import {
   Phone,
   Mail,
   GraduationCap,
-  Calendar,
-  AlertCircle,
   Clock,
   ArrowUpDown,
   SearchX,
-  ExternalLink,
+  Edit3,
 } from 'lucide-react'
 import type { Lead, LeadStatus, LeadFilterState } from '../../types/leads'
 import { Badge, type BadgeVariant } from '../../components/ui/Badge'
@@ -21,6 +18,7 @@ export interface LeadTableProps {
   onFilterChange: (filters: LeadFilterState) => void
   onResetFilters: () => void
   onSelectLead?: (lead: Lead) => void
+  onEditLead?: (lead: Lead) => void
 }
 
 function getBadgeVariant(status: LeadStatus): BadgeVariant {
@@ -47,6 +45,7 @@ export function LeadTable({
   onFilterChange,
   onResetFilters,
   onSelectLead,
+  onEditLead,
 }: LeadTableProps) {
   const handleSortToggle = (column: 'full_name' | 'status' | 'created_at') => {
     if (filters.sortBy === column) {
@@ -144,6 +143,7 @@ export function LeadTable({
                   <ArrowUpDown size={12} className="sort-icon" />
                 </div>
               </th>
+              <th style={{ width: '8%', textAlign: 'center' }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -173,12 +173,15 @@ export function LeadTable({
                   <td style={{ textAlign: 'right' }}>
                     <div className="skeleton-box skeleton-date" />
                   </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <div className="skeleton-box" style={{ width: 45, height: 24, margin: '0 auto' }} />
+                  </td>
                 </tr>
               ))
             ) : leads.length === 0 ? (
               // Empty Search Results
               <tr>
-                <td colSpan={7} className="lead-table-empty-td">
+                <td colSpan={8} className="lead-table-empty-td">
                   <div className="table-empty-box">
                     <SearchX size={36} className="table-empty-icon" />
                     <h4 className="table-empty-title">No matching student leads found</h4>
@@ -277,6 +280,22 @@ export function LeadTable({
                       <span className="lead-date-cell">
                         {formatLeadDate(lead.created_at)}
                       </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td style={{ textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        className="row-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEditLead?.(lead)
+                        }}
+                        title="Edit lead details"
+                      >
+                        <Edit3 size={11} />
+                        <span>Edit</span>
+                      </button>
                     </td>
                   </tr>
                 )

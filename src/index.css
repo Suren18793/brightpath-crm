@@ -2255,6 +2255,10 @@ button, input, select, textarea {
   font-size: 0.775rem;
   font-weight: 600;
   text-decoration: none;
+  background-color: #ffffff;
+  color: var(--text-main);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
@@ -2275,6 +2279,264 @@ button, input, select, textarea {
   background-color: #ffffff;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
+}
+
+/* ==========================================================================
+   Phase 6: Lead Creation & Edit Modal, Validation, and Toast Notifications
+   ========================================================================== */
+
+.lead-modal-card {
+  max-width: 620px;
+}
+
+.lead-modal-body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 90px);
+}
+
+.crm-lead-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-quickfill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--primary-50);
+  border: 1px dashed var(--primary-100);
+  border-radius: var(--radius-md);
+  font-size: 0.775rem;
+}
+
+.quickfill-text {
+  color: var(--primary-700);
+  font-weight: 500;
+}
+
+.quickfill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  background-color: #ffffff;
+  border: 1px solid var(--primary-500);
+  border-radius: var(--radius-sm);
+  color: var(--primary-700);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.quickfill-btn:hover {
+  background-color: var(--primary-100);
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.required-star {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.optional-tag {
+  font-size: 0.725rem;
+  font-weight: normal;
+  color: var(--text-muted);
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 14px;
+}
+
+.input-with-icon-top {
+  position: relative;
+  display: flex;
+}
+
+.input-icon-top {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  color: var(--text-subtle);
+  pointer-events: none;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background-color: #ffffff;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.45;
+  transition: all 0.15s ease;
+}
+
+.form-textarea:focus {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+  background-color: #fff1f2 !important;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.form-error-text {
+  font-size: 0.725rem;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.2rem;
+  line-height: 1.3;
+}
+
+.form-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Toast Notifications Framework */
+.crm-toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 380px;
+  width: calc(100% - 2rem);
+  pointer-events: none;
+}
+
+.crm-toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  animation: slideUpToast 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+@keyframes slideUpToast {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast-success {
+  border-left: 4px solid #10b981;
+}
+
+.toast-error {
+  border-left: 4px solid #ef4444;
+}
+
+.toast-info {
+  border-left: 4px solid #3b82f6;
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+.toast-close-btn:hover {
+  color: var(--text-main);
+  background-color: var(--bg-app);
+}
+
+/* Row Action Buttons in Table & Mobile Cards */
+.row-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.row-action-btn:hover {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  border-color: var(--primary-500);
 }
 
 /* ==========================================================================
@@ -2329,6 +2591,19 @@ button, input, select, textarea {
 
   .mobile-cards-wrapper {
     display: block;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .crm-toast-container {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: none;
+    width: auto;
   }
 }
 

@@ -1,13 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
-  Users,
   UserPlus,
   RefreshCw,
   Database,
-  AlertTriangle,
   Sparkles,
-  Info,
-  CheckCircle2,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { leadsService } from '../../services/leadsService'
@@ -16,16 +12,16 @@ import { INITIAL_LEAD_FILTERS } from '../../types/leads'
 import { LeadFilterBar } from './LeadFilterBar'
 import { LeadTable } from './LeadTable'
 import { LeadCardMobile } from './LeadCardMobile'
+import { LeadModal } from './LeadModal'
 import { Button } from '../../components/ui/Button'
-import { Badge } from '../../components/ui/Badge'
 
 export interface LeadListViewProps {
-  onQuickNewLead?: () => void
+  openCreateSignal?: number
   onSelectLead?: (lead: Lead) => void
 }
 
-export function LeadListView({ onQuickNewLead, onSelectLead }: LeadListViewProps) {
-  const { role, user, isWorkshopMode } = useAuth()
+export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewProps) {
+  const { role, user } = useAuth()
 
   const [leads, setLeads] = useState<Lead[]>([])
   const [totalLeadsCount, setTotalLeadsCount] = useState<number>(0)
@@ -42,6 +38,33 @@ export function LeadListView({ onQuickNewLead, onSelectLead }: LeadListViewProps
     convertedCount: 0,
     lostCount: 0,
   })
+
+  // Modal state for Create / Edit Lead
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [leadToEdit, setLeadToEdit] = useState<Lead | null>(null)
+
+  // Open create modal when triggered from global header
+  useEffect(() => {
+    if (openCreateSignal && openCreateSignal > 0) {
+      setLeadToEdit(null)
+      setIsModalOpen(true)
+    }
+  }, [openCreateSignal])
+
+  const handleOpenCreateModal = () => {
+    setLeadToEdit(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (lead: Lead) => {
+    setLeadToEdit(lead)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setLeadToEdit(null)
+  }
 
   // Load counsellor list on mount
   useEffect(() => {
@@ -136,17 +159,15 @@ export function LeadListView({ onQuickNewLead, onSelectLead }: LeadListViewProps
             <span>Refresh</span>
           </Button>
 
-          {onQuickNewLead && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={onQuickNewLead}
-              className="new-lead-main-btn"
-            >
-              <UserPlus size={15} />
-              <span>+ New Lead</span>
-            </Button>
-          )}
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleOpenCreateModal}
+            className="new-lead-main-btn"
+          >
+            <UserPlus size={15} />
+            <span>+ New Lead</span>
+          </Button>
         </div>
       </div>
 
@@ -227,6 +248,7 @@ export function LeadListView({ onQuickNewLead, onSelectLead }: LeadListViewProps
           onFilterChange={setFilters}
           onResetFilters={handleResetFilters}
           onSelectLead={onSelectLead}
+          onEditLead={handleOpenEditModal}
         />
       </div>
 
@@ -237,8 +259,22 @@ export function LeadListView({ onQuickNewLead, onSelectLead }: LeadListViewProps
           isLoading={isLoading}
           onResetFilters={handleResetFilters}
           onSelectLead={onSelectLead}
+          onEditLead={handleOpenEditModal}
         />
       </div>
+
+      {/* Create / Edit Lead Modal */}
+      <LeadModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={() => {
+          fetchLeads()
+        }}
+        counsellors={counsellors}
+        userRole={role}
+        currentUserId={user?.id}
+        leadToEdit={leadToEdit}
+      />
     </div>
   )
 }

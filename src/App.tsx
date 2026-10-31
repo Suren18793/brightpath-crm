@@ -6,10 +6,9 @@ import {
   AlertCircle,
   TrendingUp,
   Clock,
-  Phone,
-  Mail,
-  BookOpen,
-  CheckCircle2,
+  LogIn,
+  Sparkles,
+  ShieldCheck,
 } from 'lucide-react'
 import type { NavTab } from './types/navigation'
 import { AppLayout } from './components/layout/AppLayout'
@@ -17,17 +16,17 @@ import { StatCard } from './components/ui/StatCard'
 import { Badge } from './components/ui/Badge'
 import { Button } from './components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from './components/ui/Card'
-import { EmptyState } from './components/ui/EmptyState'
 import { ConfigNotice } from './components/feedback/ConfigNotice'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ToastProvider, useToast } from './context/ToastContext'
 import { SignInModal } from './features/auth/SignInModal'
 import { LeadListView } from './features/leads/LeadListView'
-import { LogIn, Sparkles, ShieldCheck } from 'lucide-react'
 import type { UserRole } from './types/auth'
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard')
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [openCreateSignal, setOpenCreateSignal] = useState<number>(0)
+  const { showToast } = useToast()
 
   const {
     role: userRole,
@@ -38,9 +37,9 @@ function AppContent() {
     openAuthModal,
   } = useAuth()
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg)
-    setTimeout(() => setToastMessage(null), 3000)
+  const handleGlobalQuickNewLead = () => {
+    setActiveTab('leads')
+    setOpenCreateSignal((prev) => prev + 1)
   }
 
   const staffName = profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Staff Member')
@@ -52,7 +51,7 @@ function AppContent() {
       userRole={userRole}
       userName={staffName}
       unreadFollowupsCount={2}
-      onQuickNewLead={() => showToast('Lead creation modal will connect to Supabase in Phase 6!')}
+      onQuickNewLead={handleGlobalQuickNewLead}
     >
       {/* Top Supabase Diagnostic Banner & Assistant */}
       <ConfigNotice />
@@ -140,32 +139,6 @@ function AppContent() {
 
       {/* Authentication Modal */}
       <SignInModal />
-
-      {/* Temporary Toast Banner */}
-      {toastMessage && (
-        <div
-          role="status"
-          style={{
-            position: 'fixed',
-            bottom: '1.5rem',
-            right: '1.5rem',
-            padding: '0.75rem 1.25rem',
-            backgroundColor: '#0f172a',
-            color: '#ffffff',
-            borderRadius: 'var(--radius-md)',
-            boxShadow: 'var(--shadow-lg)',
-            zIndex: 100,
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}
-        >
-          <CheckCircle2 size={16} color="#10b981" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
 
       {/* VIEW: DASHBOARD */}
       {activeTab === 'dashboard' && (
@@ -328,8 +301,8 @@ function AppContent() {
       {/* VIEW: LEADS */}
       {activeTab === 'leads' && (
         <LeadListView
-          onQuickNewLead={() => showToast('Lead creation modal will connect in Phase 6!')}
-          onSelectLead={(lead) => showToast(`Selected enquiry: ${lead.full_name}`)}
+          openCreateSignal={openCreateSignal}
+          onSelectLead={(lead) => showToast(`Selected enquiry: ${lead.full_name}`, 'info')}
         />
       )}
 
@@ -582,8 +555,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ToastProvider>
   )
 }

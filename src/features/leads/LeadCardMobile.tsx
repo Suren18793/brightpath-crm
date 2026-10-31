@@ -1,12 +1,11 @@
-import React from 'react'
 import {
   Phone,
   MessageCircle,
   GraduationCap,
-  Calendar,
   Clock,
   UserCheck,
   SearchX,
+  Edit3,
 } from 'lucide-react'
 import type { Lead, LeadStatus } from '../../types/leads'
 import { Badge, type BadgeVariant } from '../../components/ui/Badge'
@@ -17,6 +16,7 @@ export interface LeadCardMobileProps {
   isLoading: boolean
   onResetFilters: () => void
   onSelectLead?: (lead: Lead) => void
+  onEditLead?: (lead: Lead) => void
 }
 
 function getBadgeVariant(status: LeadStatus): BadgeVariant {
@@ -41,6 +41,7 @@ export function LeadCardMobile({
   isLoading,
   onResetFilters,
   onSelectLead,
+  onEditLead,
 }: LeadCardMobileProps) {
   if (isLoading) {
     return (
@@ -125,6 +126,16 @@ export function LeadCardMobile({
               <MessageCircle size={13} />
               <span>WhatsApp</span>
             </a>
+            {onEditLead && (
+              <button
+                type="button"
+                className="mobile-action-pill"
+                onClick={() => onEditLead(lead)}
+              >
+                <Edit3 size={13} />
+                <span>Edit</span>
+              </button>
+            )}
           </div>
         </div>
       ))}
