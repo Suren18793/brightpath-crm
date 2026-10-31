@@ -23,7 +23,7 @@
 - [x] **Phase 3: Database Schema, Row Level Security & Demo Seed SQL** *(Completed: Commit `0001b6d`)*
 - [x] **Phase 4: Authentication, Session Lifecycle & Role-Based RBAC** *(Completed: Commit `d3abad6`)*
 - [x] **Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters** *(Completed: Commit `ade7a9f`)*
-- [ ] **Phase 6: Lead Creation & Edit Modal with Strict Validation**
+- [x] **Phase 6: Lead Creation & Edit Modal with Strict Validation** *(Completed: Commit `b94b972`)*
 - [ ] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule**
 - [ ] **Phase 8: Follow-Up Scheduling & Overdue Management Engine**
 - [ ] **Phase 9: Lead Detail View & Audit Activity Timeline**
@@ -148,27 +148,16 @@
 ---
 
 ### Phase 6: Lead Creation & Edit Modal with Strict Validation
+- **Status**: **COMPLETED** (Commit: `b94b972`)
 - **Goal**: Allow capturing new student enquiries and editing existing leads with data validation.
-- **What to Implement**:
-  - "New Lead" modal dialog with validation:
-    - Full Name (required, trimmed).
-    - Phone Number (required, phone format check).
-    - Email (optional, valid format check).
-    - Course Interest (required dropdown).
-    - Source (required dropdown).
-    - Assignee (dropdown from `profiles`).
-    - Notes (optional textarea).
-  - Duplicate submission lock (disabled button + spinner while saving).
-  - Edit Lead Modal with pre-filled values.
-  - Toast notification system for save confirmations.
-- **Target Files**:
-  - `src/features/leads/LeadModal.tsx`
-  - `src/features/leads/LeadForm.tsx`
-  - `src/utils/validation.ts`
-  - `src/context/ToastContext.tsx`
-- **Acceptance Criteria**:
-  - Invalid input displays clear error messages and prevents submission.
-  - Saved leads immediately appear in the list and persist across page refresh.
+- **Delivered**:
+  - `src/utils/validation.ts`: Strict field validation for student full name, international/Indian phone format, optional RFC email, course interest, acquisition source, and notes length.
+  - `src/context/ToastContext.tsx`: Global accessible toast notification provider (`success`, `error`, `info` variants with auto-dismiss).
+  - `src/features/leads/LeadForm.tsx`: Controlled form with field-level blur/submit validation, duplicate submission lock, role-aware counsellor assignment, and 1-click sample student prefill helper.
+  - `src/features/leads/LeadModal.tsx`: Accessible Create & Edit Lead modal dialog with Escape key handling and error banner.
+  - `src/services/leadsService.ts`: Added `createLead` and `updateLead` with dual-mode Supabase + LocalStorage fallback persistence.
+  - `src/features/leads/LeadListView.tsx`, `LeadTable.tsx`, `LeadCardMobile.tsx`, `src/App.tsx`: Wired "+ New Lead" (both global header and lead view) and row/card "Edit" triggers with instant list & KPI chip refresh.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
