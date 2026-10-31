@@ -216,6 +216,12 @@ export const leadsService = {
         const { data, error } = await query
 
         if (!error && data) {
+          // If in workshop preview mode without a signed-in Supabase session and RLS returns 0 rows,
+          // gracefully fallback to local demo leads so preview mode remains fully testable
+          if (data.length === 0 && !currentUserId) {
+            return this.queryMockLeads(filters, userRole, currentUserId, false)
+          }
+
           // Format records from joined relation
           let leads: Lead[] = data.map((item: any) => {
             const nextFollowup = item.follow_ups?.find((f: any) => f.status === 'pending')
