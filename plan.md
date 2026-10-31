@@ -22,7 +22,7 @@
 - [x] **Phase 2: Supabase Client & Configuration Diagnostics** *(Completed: Commit `6d743e7`)*
 - [x] **Phase 3: Database Schema, Row Level Security & Demo Seed SQL** *(Completed: Commit `0001b6d`)*
 - [x] **Phase 4: Authentication, Session Lifecycle & Role-Based RBAC** *(Completed: Commit `d3abad6`)*
-- [ ] **Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters**
+- [x] **Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters** *(Completed: Commit `ade7a9f`)*
 - [ ] **Phase 6: Lead Creation & Edit Modal with Strict Validation**
 - [ ] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule**
 - [ ] **Phase 8: Follow-Up Scheduling & Overdue Management Engine**
@@ -134,23 +134,16 @@
 ---
 
 ### Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters
-- **Goal**: Build the searchable, filterable lead table and mobile cards.
-- **What to Implement**:
-  - Leads table view (Name, Contact, Course, Source, Status, Assignee, Next Follow-up, Date).
-  - Search input filtering in real-time by student name, phone, email.
-  - Multi-attribute filters: Status, Source, Assigned Counsellor, with "Reset Filters" action.
-  - Responsive mobile cards view for smaller screens.
-  - Skeletons, empty search results, and error states.
-- **Target Files**:
-  - `src/types/leads.ts`
-  - `src/services/leadsService.ts`
-  - `src/features/leads/LeadListView.tsx`
-  - `src/features/leads/LeadTable.tsx`
-  - `src/features/leads/LeadCardMobile.tsx`
-  - `src/features/leads/LeadFilterBar.tsx`
-- **Acceptance Criteria**:
-  - Leads load from database; search and combined filters work accurately.
-  - Reset filters clears all filters and restores full list.
+- **Status**: **COMPLETED** (Commit: `ade7a9f`)
+- **Goal**: Build the searchable, filterable lead table and mobile cards with dual-mode Supabase/Local fallback.
+- **Delivered**:
+  - `src/types/leads.ts`: Types for `Lead`, `LeadStatus`, `LeadSource`, `LeadFilterState`, `LeadStats`.
+  - `src/services/leadsService.ts`: Dual-mode query engine with real Supabase table query support, role-scoped queries, fallback local persistence, and counsellor listing.
+  - `src/features/leads/LeadFilterBar.tsx`: Real-time search with clear button, Status dropdown, Source dropdown, Assignee selector, sort controller, and active filter counter with 1-click Reset button.
+  - `src/features/leads/LeadTable.tsx`: Full responsive data table with sortable column headers, phone/email links, status badges, next follow-up alerts, skeleton loaders, and empty search results state.
+  - `src/features/leads/LeadCardMobile.tsx`: Mobile card view for screens $<768\text{px}$ with direct 1-tap phone and WhatsApp outreach shortcuts.
+  - `src/features/leads/LeadListView.tsx`: Master view container with summary metric quick-filter chips, missing database schema diagnostic ribbon, and app layout integration.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
