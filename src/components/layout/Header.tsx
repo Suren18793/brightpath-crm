@@ -1,20 +1,17 @@
-import { Menu, Search, UserCheck } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import type { NavTab } from '../../types/navigation'
 import { Button } from '../ui/Button'
+import { HeaderUserMenu } from './HeaderUserMenu'
 
 export interface HeaderProps {
   activeTab: NavTab
   onToggleMobileMenu: () => void
-  userRole?: 'admin' | 'manager' | 'counsellor'
-  userName?: string
   onQuickNewLead?: () => void
 }
 
 export function Header({
   activeTab,
   onToggleMobileMenu,
-  userRole = 'counsellor',
-  userName = 'Priya Sharma',
   onQuickNewLead,
 }: HeaderProps) {
   const titles: Record<NavTab, { title: string; subtitle: string }> = {
@@ -81,23 +78,7 @@ export function Header({
           </Button>
         )}
 
-        <div className="user-profile-badge">
-          <div className="avatar-circle">
-            {userName
-              .split(' ')
-              .map((n) => n[0])
-              .join('')
-              .slice(0, 2)
-              .toUpperCase()}
-          </div>
-          <div className="user-info-text">
-            <span className="user-name">{userName}</span>
-            <span className="user-role-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
-              <UserCheck size={10} />
-              {userRole}
-            </span>
-          </div>
-        </div>
+        <HeaderUserMenu />
       </div>
     </header>
   )

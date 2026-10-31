@@ -19,23 +19,37 @@ import { Button } from './components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from './components/ui/Card'
 import { EmptyState } from './components/ui/EmptyState'
 import { ConfigNotice } from './components/feedback/ConfigNotice'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { SignInModal } from './features/auth/SignInModal'
+import { LogIn, Sparkles, ShieldCheck } from 'lucide-react'
+import type { UserRole } from './types/auth'
 
-export default function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard')
-  const [userRole, setUserRole] = useState<'counsellor' | 'manager' | 'admin'>('counsellor')
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const {
+    role: userRole,
+    profile,
+    user,
+    isWorkshopMode,
+    switchWorkshopRole,
+    openAuthModal,
+  } = useAuth()
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(null), 3000)
   }
 
+  const staffName = profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Staff Member')
+
   return (
     <AppLayout
       activeTab={activeTab}
       onSelectTab={setActiveTab}
       userRole={userRole}
-      userName={userRole === 'admin' ? 'Dr. Ramesh Nair' : userRole === 'manager' ? 'Aarav Patel' : 'Priya Sharma'}
+      userName={staffName}
       unreadFollowupsCount={2}
       onQuickNewLead={() => showToast('Lead creation modal will connect to Supabase in Phase 6!')}
     >
@@ -53,43 +67,78 @@ export default function App() {
           padding: '0.65rem 1rem',
           marginBottom: '1.25rem',
           borderRadius: 'var(--radius-md)',
-          backgroundColor: '#eff6ff',
-          border: '1px solid #bfdbfe',
+          backgroundColor: isWorkshopMode ? '#eff6ff' : '#ecfdf5',
+          border: `1px solid ${isWorkshopMode ? '#bfdbfe' : '#a7f3d0'}`,
           fontSize: '0.825rem',
-          color: '#1e40af',
+          color: isWorkshopMode ? '#1e40af' : '#065f46',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontWeight: 700 }}>Workshop Role Preview:</span>
-          <span>Switch perspective to test role-based UI boundaries</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
+            {isWorkshopMode ? <Sparkles size={14} /> : <ShieldCheck size={14} />}
+            {isWorkshopMode ? 'Workshop Role Preview:' : 'Supabase Authenticated Session:'}
+          </span>
+          <span>
+            {isWorkshopMode
+              ? 'Switch perspective to test role-based UI boundaries'
+              : `Logged in as ${staffName} (${userRole.toUpperCase()})`}
+          </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
-          {(['counsellor', 'manager', 'admin'] as const).map((role) => (
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.35rem' }}>
+            {(['counsellor', 'manager', 'admin'] as UserRole[]).map((role) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => {
+                  switchWorkshopRole(role)
+                  showToast(`Switched view to ${role.toUpperCase()}`)
+                }}
+                style={{
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid',
+                  borderColor: userRole === role ? '#1d4ed8' : '#93c5fd',
+                  backgroundColor: userRole === role ? '#1d4ed8' : '#ffffff',
+                  color: userRole === role ? '#ffffff' : '#1e40af',
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {role}
+              </button>
+            ))}
+          </div>
+
+          {!user && (
             <button
-              key={role}
               type="button"
-              onClick={() => {
-                setUserRole(role)
-                showToast(`Switched view to ${role.toUpperCase()}`)
-              }}
+              onClick={() => openAuthModal('signin')}
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
                 padding: '0.25rem 0.65rem',
                 borderRadius: 'var(--radius-sm)',
-                border: '1px solid',
-                borderColor: userRole === role ? '#1d4ed8' : '#93c5fd',
-                backgroundColor: userRole === role ? '#1d4ed8' : '#ffffff',
-                color: userRole === role ? '#ffffff' : '#1e40af',
+                border: '1px solid #10b981',
+                backgroundColor: '#ffffff',
+                color: '#047857',
                 fontWeight: 600,
                 fontSize: '0.75rem',
                 cursor: 'pointer',
-                textTransform: 'capitalize',
               }}
             >
-              {role}
+              <LogIn size={12} /> Sign In
             </button>
-          ))}
+          )}
         </div>
       </div>
+
+      {/* Authentication Modal */}
+      <SignInModal />
 
       {/* Temporary Toast Banner */}
       {toastMessage && (
@@ -515,7 +564,25 @@ export default function App() {
                 <input
                   type="text"
                   readOnly
-                  value="Priya Sharma (Counsellor)"
+                  value={`${staffName} (${userRole.toUpperCase()})`}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: 'var(--bg-app)',
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
+                  Staff Email / Session
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  value={user?.email || (isWorkshopMode ? 'Demo Preview Mode (No DB session)' : 'Authenticated')}
                   style={{
                     width: '100%',
                     padding: '0.5rem 0.75rem',
@@ -533,17 +600,38 @@ export default function App() {
                   backgroundColor: 'var(--bg-app)',
                   border: '1px solid var(--border-subtle)',
                   marginTop: '0.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
                 }}
               >
-                <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Supabase Cloud Connection</div>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', margin: 0 }}>
-                  Will be connected and validated in Phase 2 with <code>.env</code> diagnostics and migration verification.
-                </p>
+                <div>
+                  <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Supabase Authentication</div>
+                  <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', margin: 0 }}>
+                    {user
+                      ? `Signed in as ${user.email}. Role permissions are enforced via PostgreSQL RLS.`
+                      : 'Running in local workshop preview mode. Sign in to connect your live Supabase staff account.'}
+                  </p>
+                </div>
+                {!user && (
+                  <Button size="sm" variant="primary" onClick={() => openAuthModal('signin')}>
+                    Sign In
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
         </Card>
       )}
     </AppLayout>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }

@@ -17,8 +17,6 @@ export interface AppLayoutProps {
 export function AppLayout({
   activeTab,
   onSelectTab,
-  userRole = 'counsellor',
-  userName = 'Priya Sharma',
   unreadFollowupsCount = 3,
   onQuickNewLead,
   children,
@@ -51,8 +49,6 @@ export function AppLayout({
         <Header
           activeTab={activeTab}
           onToggleMobileMenu={() => setIsMobileOpen(true)}
-          userRole={userRole}
-          userName={userName}
           onQuickNewLead={onQuickNewLead}
         />
 
