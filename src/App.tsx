@@ -21,6 +21,7 @@ import { EmptyState } from './components/ui/EmptyState'
 import { ConfigNotice } from './components/feedback/ConfigNotice'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { SignInModal } from './features/auth/SignInModal'
+import { LeadListView } from './features/leads/LeadListView'
 import { LogIn, Sparkles, ShieldCheck } from 'lucide-react'
 import type { UserRole } from './types/auth'
 
@@ -326,59 +327,10 @@ function AppContent() {
 
       {/* VIEW: LEADS */}
       {activeTab === 'leads' && (
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle>Student Enquiries & Leads Pipeline</CardTitle>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                Full CRUD, search, and multi-attribute filters will connect to Supabase in Phase 5.
-              </p>
-            </div>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => showToast('Create Lead dialog opens in Phase 6')}
-            >
-              + Create Lead
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid var(--border-subtle)', color: 'var(--text-muted)' }}>
-                    <th style={{ padding: '0.75rem' }}>Student Name</th>
-                    <th style={{ padding: '0.75rem' }}>Course Interest</th>
-                    <th style={{ padding: '0.75rem' }}>Source</th>
-                    <th style={{ padding: '0.75rem' }}>Contact</th>
-                    <th style={{ padding: '0.75rem' }}>Status</th>
-                    <th style={{ padding: '0.75rem' }}>Assignee</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { name: 'Ananya Deshmukh', course: 'JEE Masterclass', source: 'Website', contact: '+91 98201 12345', status: 'new' as const, assignee: 'Priya Sharma' },
-                    { name: 'Rohan Verma', course: 'NEET Advanced', source: 'Walk-in', contact: '+91 98450 67890', status: 'contacted' as const, assignee: 'Aarav Patel' },
-                    { name: 'Sneha Kulkarni', course: 'Full Stack Dev', source: 'WhatsApp', contact: '+91 99302 45678', status: 'qualified' as const, assignee: 'Priya Sharma' },
-                    { name: 'Vikram Rajput', course: 'Data Science', source: 'Referral', contact: '+91 97110 33445', status: 'converted' as const, assignee: 'Aarav Patel' },
-                    { name: 'Sameer Joshi', course: 'UI/UX Design', source: 'Phone Call', contact: '+91 98223 99881', status: 'lost' as const, assignee: 'Priya Sharma' },
-                  ].map((lead, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                      <td style={{ padding: '0.75rem', fontWeight: 600 }}>{lead.name}</td>
-                      <td style={{ padding: '0.75rem' }}>{lead.course}</td>
-                      <td style={{ padding: '0.75rem', color: 'var(--text-muted)' }}>{lead.source}</td>
-                      <td style={{ padding: '0.75rem', color: 'var(--text-muted)' }}>{lead.contact}</td>
-                      <td style={{ padding: '0.75rem' }}>
-                        <Badge variant={lead.status}>{lead.status.toUpperCase()}</Badge>
-                      </td>
-                      <td style={{ padding: '0.75rem', color: 'var(--text-muted)' }}>{lead.assignee}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+        <LeadListView
+          onQuickNewLead={() => showToast('Lead creation modal will connect in Phase 6!')}
+          onSelectLead={(lead) => showToast(`Selected enquiry: ${lead.full_name}`)}
+        />
       )}
 
       {/* VIEW: FOLLOW-UPS */}
