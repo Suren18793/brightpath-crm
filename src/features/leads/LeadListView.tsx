@@ -19,10 +19,15 @@ import { Button } from '../../components/ui/Button'
 
 export interface LeadListViewProps {
   openCreateSignal?: number
+  focusLeadName?: string | null
   onSelectLead?: (lead: Lead) => void
 }
 
-export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewProps) {
+export function LeadListView({
+  openCreateSignal,
+  focusLeadName,
+  onSelectLead,
+}: LeadListViewProps) {
   const { role, user, profile } = useAuth()
   const { showToast } = useToast()
 
@@ -62,6 +67,16 @@ export function LeadListView({ openCreateSignal, onSelectLead }: LeadListViewPro
       setIsModalOpen(true)
     }
   }, [openCreateSignal])
+
+  // Apply search filter when jumping from a follow-up card
+  useEffect(() => {
+    if (focusLeadName) {
+      setFilters({
+        ...INITIAL_LEAD_FILTERS,
+        searchQuery: focusLeadName,
+      })
+    }
+  }, [focusLeadName])
 
   const handleOpenCreateModal = () => {
     setLeadToEdit(null)

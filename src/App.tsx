@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Users,
   UserPlus,
@@ -21,11 +21,15 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider, useToast } from './context/ToastContext'
 import { SignInModal } from './features/auth/SignInModal'
 import { LeadListView } from './features/leads/LeadListView'
+import { FollowUpListView } from './features/followups/FollowUpListView'
+import { followUpsService } from './services/followUpsService'
 import type { UserRole } from './types/auth'
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard')
   const [openCreateSignal, setOpenCreateSignal] = useState<number>(0)
+  const [focusLeadName, setFocusLeadName] = useState<string | null>(null)
+  const [overdueFollowupsCount, setOverdueFollowupsCount] = useState<number>(2)
   const { showToast } = useToast()
 
   const {
@@ -37,9 +41,25 @@ function AppContent() {
     openAuthModal,
   } = useAuth()
 
+  useEffect(() => {
+    followUpsService.getFollowUps(userRole, user?.id).then((res) => {
+      const stats = followUpsService.getFollowUpStats(res.followUps)
+      setOverdueFollowupsCount(stats.overdueCount)
+    })
+  }, [userRole, user?.id, activeTab])
+
   const handleGlobalQuickNewLead = () => {
+    setFocusLeadName(null)
     setActiveTab('leads')
     setOpenCreateSignal((prev) => prev + 1)
+  }
+
+  const handleJumpToLead = (_leadId: string, leadName?: string) => {
+    setFocusLeadName(leadName || null)
+    setActiveTab('leads')
+    if (leadName) {
+      showToast(`Filtered leads for "${leadName}"`, 'info')
+    }
   }
 
   const staffName = profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Staff Member')
@@ -47,10 +67,13 @@ function AppContent() {
   return (
     <AppLayout
       activeTab={activeTab}
-      onSelectTab={setActiveTab}
+      onSelectTab={(tab) => {
+        if (tab !== 'leads') setFocusLeadName(null)
+        setActiveTab(tab)
+      }}
       userRole={userRole}
       userName={staffName}
-      unreadFollowupsCount={2}
+      unreadFollowupsCount={overdueFollowupsCount}
       onQuickNewLead={handleGlobalQuickNewLead}
     >
       {/* Top Supabase Diagnostic Banner & Assistant */}
@@ -302,82 +325,17 @@ function AppContent() {
       {activeTab === 'leads' && (
         <LeadListView
           openCreateSignal={openCreateSignal}
+          focusLeadName={focusLeadName}
           onSelectLead={(lead) => showToast(`Selected enquiry: ${lead.full_name}`, 'info')}
         />
       )}
 
       {/* VIEW: FOLLOW-UPS */}
       {activeTab === 'followups' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Clock size={18} />
-              <span>Pending & Scheduled Follow-ups</span>
-            </CardTitle>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => showToast('Follow-up scheduler connects in Phase 8')}
-            >
-              + Schedule Follow-up
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--status-overdue-bg)',
-                  border: '1px solid var(--status-overdue-border)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <Badge variant="overdue">OVERDUE (Today 10:00 AM)</Badge>
-                </div>
-                <h4 style={{ margin: '0 0 0.25rem', fontWeight: 700, color: 'var(--status-overdue-text)' }}>
-                  Karan Mehta — NEET Comprehensive
-                </h4>
-                <p style={{ fontSize: '0.85rem', color: '#7f1d1d', margin: '0 0 0.85rem' }}>
-                  Parent enquired about morning batch availability and hostel options. Call back needed.
-                </p>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => showToast('Will mark completed in Phase 8')}
-                >
-                  Mark Completed
-                </Button>
-              </div>
-
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-app)',
-                  border: '1px solid var(--border-subtle)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <Badge variant="neutral">Tomorrow 02:30 PM</Badge>
-                </div>
-                <h4 style={{ margin: '0 0 0.25rem', fontWeight: 600 }}>
-                  Tanvi Sen — JEE Advanced
-                </h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 0.85rem' }}>
-                  Discuss entrance scholarship test eligibility criteria and syllabus.
-                </p>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => showToast('Will mark completed in Phase 8')}
-                >
-                  Mark Completed
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <FollowUpListView
+          onJumpToLead={handleJumpToLead}
+          onUrgentCountChange={setOverdueFollowupsCount}
+        />
       )}
 
       {/* VIEW: REPORTS */}

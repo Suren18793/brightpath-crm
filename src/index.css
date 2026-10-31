@@ -2711,6 +2711,305 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
+   Phase 8: Follow-Up Scheduling & Overdue Management Engine
+   ========================================================================== */
+
+.overdue-alert-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--status-overdue-bg);
+  border: 1px solid var(--status-overdue-border);
+  border-radius: var(--radius-md);
+  color: var(--status-overdue-text);
+  font-size: 0.85rem;
+}
+
+.overdue-ribbon-left {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.overdue-filter-shortcut {
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background-color: #ffffff;
+  border: 1px solid var(--status-overdue-border);
+  color: var(--status-overdue-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.overdue-filter-shortcut:hover {
+  background-color: #ffe4e6;
+}
+
+.status-metric-chip.chip-overdue.active {
+  background-color: #e11d48;
+  border-color: #e11d48;
+  color: #ffffff;
+}
+.status-metric-chip.chip-overdue.active .chip-count {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.followups-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.followup-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+
+.followup-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.followup-card-overdue {
+  background-color: #fffafa;
+  border-color: #fecdd3;
+  border-left: 4px solid #e11d48;
+}
+
+.followup-card-due_today {
+  border-left: 4px solid #f59e0b;
+}
+
+.followup-card-upcoming {
+  border-left: 4px solid #2563eb;
+}
+
+.followup-card-completed {
+  background-color: #f8fafc;
+  border-left: 4px solid #10b981;
+  opacity: 0.92;
+}
+
+.followup-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.followup-exact-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.followup-lead-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.followup-student-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.followup-course-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.followup-jump-lead-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  color: var(--primary-700);
+  font-size: 0.725rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.followup-jump-lead-btn:hover {
+  background-color: var(--primary-100);
+}
+
+.followup-note-body {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  line-height: 1.45;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+}
+
+.followup-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.followup-assignee-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+}
+
+.followup-completed-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #047857;
+  font-weight: 600;
+}
+
+.followup-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: auto;
+}
+
+.followup-outreach-links {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.followup-outreach-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-main);
+  background-color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.followup-outreach-pill.call:hover {
+  background-color: var(--bg-app);
+}
+
+.followup-outreach-pill.whatsapp {
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+.followup-outreach-pill.whatsapp:hover {
+  background-color: #d1fae5;
+}
+
+.followup-done-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: #047857;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+/* FollowUpModal Time & Note Presets */
+.fup-time-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.fup-preset-mini {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.fup-preset-mini:hover {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  border-color: var(--primary-500);
+}
+.fup-preset-mini.preset-overdue-test:hover {
+  background-color: #fff1f2;
+  color: #be123c;
+  border-color: #fda4af;
+}
+
+.fup-note-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.fup-note-preset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: left;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-50);
+  border: 1px dashed var(--primary-100);
+  color: var(--primary-700);
+  font-size: 0.725rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.fup-note-preset-btn:hover {
+  background-color: var(--primary-100);
+}
+
+/* ==========================================================================
    Responsive Media Queries
    ========================================================================== */
 
