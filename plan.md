@@ -25,7 +25,7 @@
 - [x] **Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters** *(Completed: Commit `ade7a9f`)*
 - [x] **Phase 6: Lead Creation & Edit Modal with Strict Validation** *(Completed: Commit `b94b972`)*
 - [x] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule** *(Completed: Commit `abc6c21`)*
-- [ ] **Phase 8: Follow-Up Scheduling & Overdue Management Engine**
+- [x] **Phase 8: Follow-Up Scheduling & Overdue Management Engine** *(Completed: Commit `b486b83`)*
 - [ ] **Phase 9: Lead Detail View & Audit Activity Timeline**
 - [ ] **Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs**
 - [ ] **Phase 11: Reports & Audit CSV Export**
@@ -175,23 +175,15 @@
 ---
 
 ### Phase 8: Follow-Up Scheduling & Overdue Management Engine
+- **Status**: **COMPLETED** (Commit: `b486b83`)
 - **Goal**: Prevent dropped enquiries with timed follow-ups and overdue tracking.
-- **What to Implement**:
-  - Follow-up tracker view and Lead Detail follow-up list.
-  - "Schedule Follow-up" modal: Lead selection, Due Date & Time (`timestamptz`), Assignee, Note.
-  - Overdue logic: `status = 'pending' AND due_at < now()`.
-  - Visual status badges: Overdue (Red), Due Today (Amber), Upcoming (Blue), Completed (Green).
-  - "Mark Completed" 1-click action updating `status='completed'` and `completed_at=now()`.
-  - Quick link to jump from follow-up to the related lead.
-- **Target Files**:
-  - `src/types/followups.ts`
-  - `src/services/followUpsService.ts`
-  - `src/features/followups/FollowUpListView.tsx`
-  - `src/features/followups/FollowUpCard.tsx`
-  - `src/features/followups/FollowUpModal.tsx`
-- **Acceptance Criteria**:
-  - Overdue items correctly calculated based on current time.
-  - Completed items reflect timestamp and clear overdue flag.
+- **Delivered**:
+  - `src/types/followups.ts`: Types for `FollowUpRecord`, `FollowUpUrgency`, `FollowUpStats`, plus real-time urgency calculator [`computeFollowUpUrgency`](file:///c:/Users/kanha/brightpath-crm/src/types/followups.ts#L50-L79) (`status = 'pending' AND due_at < now()`).
+  - `src/services/followUpsService.ts`: Dual-mode follow-up engine (`public.follow_ups` + LocalStorage fallback) with automatic parent lead `next_followup_due` synchronization and `'followup_added'` / `'followup_completed'` audit logging.
+  - `src/features/followups/FollowUpCard.tsx`: Semantic urgency cards (`Overdue`, `Due Today`, `Upcoming`, `Completed`), direct Call/WhatsApp outreach shortcuts, "View Lead" quick jump, and 1-click "Mark Completed" action.
+  - `src/features/followups/FollowUpModal.tsx`: Accessible scheduler dialog with student lead selector, `datetime-local` input, 1-click time presets (`+2 Hours`, `Tomorrow 10 AM`, `+2 Days`, `Test Overdue (-2h)`), and action note presets.
+  - `src/features/followups/FollowUpListView.tsx` & `src/App.tsx`: Full follow-up tracker view with urgency filter chips, live search, overdue warning banner, and reconciled sidebar/header notification badge.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
