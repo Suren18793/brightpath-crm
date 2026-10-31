@@ -20,8 +20,8 @@
 - [x] **Phase 0: Project Baseline, Git Repository & TypeScript Setup** *(Completed: Commit `1c230d7`)*
 - [x] **Phase 1: Design System & Global Responsive Shell** *(Completed: Commit `749ab5a`)*
 - [x] **Phase 2: Supabase Client & Configuration Diagnostics** *(Completed: Commit `6d743e7`)*
-- [x] **Phase 3: Database Schema, Row Level Security & Demo Seed SQL** *(Completed)*
-- [ ] **Phase 4: Authentication, Session Lifecycle & Role-Based RBAC**
+- [x] **Phase 3: Database Schema, Row Level Security & Demo Seed SQL** *(Completed: Commit `0001b6d`)*
+- [x] **Phase 4: Authentication, Session Lifecycle & Role-Based RBAC** *(Completed: Commit `d3abad6`)*
 - [ ] **Phase 5: Core Lead Listing, Live Search & Multi-Attribute Filters**
 - [ ] **Phase 6: Lead Creation & Edit Modal with Strict Validation**
 - [ ] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule**
@@ -120,21 +120,16 @@
 ---
 
 ### Phase 4: Authentication, Session Lifecycle & Role-Based RBAC
+- **Status**: **COMPLETED** (Commit: `d3abad6`)
 - **Goal**: Implement multi-user auth, session restoration, and role detection.
-- **What to Implement**:
-  - `AuthContext` provider managing `user`, `profile`, `role`, and `loading`.
-  - Sign-in modal/page (email/password) with validation and loading states.
-  - Profile resolver loading profile for `auth.uid()`.
-  - Demo/Workshop mode: Role switcher for local previewing (Admin, Manager, Counsellor).
-- **Target Files**:
-  - `src/types/auth.ts`
-  - `src/services/authService.ts`
-  - `src/context/AuthContext.tsx`
-  - `src/features/auth/SignInModal.tsx`
-  - `src/components/layout/HeaderUserMenu.tsx`
-- **Acceptance Criteria**:
-  - Login, logout, session restoration work reliably.
-  - Top header reflects current user name and role badge.
+- **Delivered**:
+  - `src/types/auth.ts`: Roles (`admin`, `manager`, `counsellor`), permissions mapping, and `AuthContextValue` interface.
+  - `src/services/authService.ts`: GoTrue auth wrapper, session persistence, automatic profile creation, and real-time auth state listener.
+  - `src/context/AuthContext.tsx`: React Context provider managing user, profile, active role, workshop preview state, and permission evaluator.
+  - `src/features/auth/SignInModal.tsx`: Accessible dialog with Sign In/Register tabs, input validation, error handling, and 1-click workshop demo accounts.
+  - `src/components/layout/HeaderUserMenu.tsx`: Interactive header profile dropdown with initials avatar, role badge, instant role switcher, and auth triggers.
+  - `src/App.tsx` & `src/index.css`: Integrated with `AuthProvider`, dynamic session indicator banner, and smooth styling.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
