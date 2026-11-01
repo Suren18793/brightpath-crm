@@ -1,25 +1,19 @@
 import { useState, useEffect } from 'react'
 import {
-  Users,
-  UserPlus,
-  GraduationCap,
-  AlertCircle,
   TrendingUp,
-  Clock,
   LogIn,
   Sparkles,
   ShieldCheck,
 } from 'lucide-react'
 import type { NavTab } from './types/navigation'
 import { AppLayout } from './components/layout/AppLayout'
-import { StatCard } from './components/ui/StatCard'
-import { Badge } from './components/ui/Badge'
 import { Button } from './components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from './components/ui/Card'
 import { ConfigNotice } from './components/feedback/ConfigNotice'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider, useToast } from './context/ToastContext'
 import { SignInModal } from './features/auth/SignInModal'
+import { DashboardView } from './features/dashboard/DashboardView'
 import { LeadListView } from './features/leads/LeadListView'
 import { FollowUpListView } from './features/followups/FollowUpListView'
 import { followUpsService } from './services/followUpsService'
@@ -168,160 +162,13 @@ function AppContent() {
 
       {/* VIEW: DASHBOARD */}
       {activeTab === 'dashboard' && (
-        <>
-          {/* KPI Cards Grid */}
-          <div className="grid-4">
-            <StatCard
-              title="Total Enquiries"
-              value="128"
-              description="Accessible leads in pipeline"
-              icon={Users}
-              colorTheme="blue"
-            />
-            <StatCard
-              title="New Leads"
-              value="34"
-              description="Awaiting initial outreach"
-              icon={UserPlus}
-              colorTheme="purple"
-            />
-            <StatCard
-              title="Admissions"
-              value="22"
-              description="17.2% overall conversion"
-              icon={GraduationCap}
-              colorTheme="emerald"
-            />
-            <StatCard
-              title="Overdue Follow-ups"
-              value="2"
-              description="Requires immediate action"
-              icon={AlertCircle}
-              colorTheme="rose"
-            />
-          </div>
-
-          <div className="grid-2">
-            {/* Recent Leads Preview */}
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Users size={18} />
-                  <span>Recent Enquiries</span>
-                </CardTitle>
-                <Button size="sm" variant="secondary" onClick={() => setActiveTab('leads')}>
-                  View All
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  {[
-                    {
-                      name: 'Ananya Deshmukh',
-                      course: 'JEE Advanced Masterclass',
-                      source: 'Website',
-                      status: 'new' as const,
-                      phone: '+91 98201 12345',
-                    },
-                    {
-                      name: 'Rohan Verma',
-                      course: 'NEET Comprehensive',
-                      source: 'Walk-in',
-                      status: 'contacted' as const,
-                      phone: '+91 98450 67890',
-                    },
-                    {
-                      name: 'Sneha Kulkarni',
-                      course: 'Full Stack Web Dev',
-                      source: 'WhatsApp',
-                      status: 'qualified' as const,
-                      phone: '+91 99302 45678',
-                    },
-                  ].map((lead, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0.65rem 0.75rem',
-                        borderRadius: 'var(--radius-md)',
-                        backgroundColor: 'var(--bg-app)',
-                        border: '1px solid var(--border-subtle)',
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{lead.name}</div>
-                        <div style={{ fontSize: '0.785rem', color: 'var(--text-muted)' }}>
-                          {lead.course} • {lead.source}
-                        </div>
-                      </div>
-                      <Badge variant={lead.status}>{lead.status.toUpperCase()}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Urgent Follow-ups Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Clock size={18} />
-                  <span>Urgent Follow-ups</span>
-                </CardTitle>
-                <Button size="sm" variant="secondary" onClick={() => setActiveTab('followups')}>
-                  Go to Scheduler
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  <div
-                    style={{
-                      padding: '0.75rem',
-                      borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--status-overdue-bg)',
-                      border: '1px solid var(--status-overdue-border)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.35rem',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 700, color: 'var(--status-overdue-text)' }}>
-                        Karan Mehta — Batch Timings Call
-                      </span>
-                      <Badge variant="overdue">OVERDUE</Badge>
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#7f1d1d' }}>
-                      Scheduled for Today at 10:00 AM • NEET Comprehensive
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      padding: '0.75rem',
-                      borderRadius: 'var(--radius-md)',
-                      backgroundColor: 'var(--bg-app)',
-                      border: '1px solid var(--border-subtle)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.35rem',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 600 }}>Tanvi Sen — Scholarship Eligibility</span>
-                      <Badge variant="neutral">UPCOMING</Badge>
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      Tomorrow at 02:30 PM • JEE Advanced
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </>
+        <DashboardView
+          onNavigateToLeads={() => setActiveTab('leads')}
+          onNavigateToFollowUps={() => setActiveTab('followups')}
+          onQuickNewLead={handleGlobalQuickNewLead}
+          onSelectLead={(lead) => handleJumpToLead(lead.id, lead.full_name)}
+          onUrgentCountChange={setOverdueFollowupsCount}
+        />
       )}
 
       {/* VIEW: LEADS */}
