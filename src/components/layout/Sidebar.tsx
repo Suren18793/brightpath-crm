@@ -7,7 +7,6 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Database,
 } from 'lucide-react'
 import type { NavItem, NavTab } from '../../types/navigation'
 import { configStatus } from '../../lib/supabaseClient'
@@ -41,7 +40,10 @@ export function Sidebar({
   ]
 
   return (
-    <aside className={`app-sidebar ${isCollapsed ? 'collapsed' : ''}`} aria-label="Main Navigation">
+    <aside
+      className={`app-sidebar ${isCollapsed ? 'collapsed' : ''}`}
+      aria-label="Primary Sidebar Navigation"
+    >
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <div className="brand-icon-box" aria-hidden="true">
@@ -51,7 +53,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav" aria-label="CRM Sections">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = activeTab === item.id
@@ -63,11 +65,18 @@ export function Sidebar({
               className={`nav-link ${isActive ? 'active' : ''}`}
               onClick={() => onSelectTab(item.id)}
               title={isCollapsed ? item.label : undefined}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <Icon size={20} strokeWidth={isActive ? 2.2 : 1.8} />
+              <Icon size={20} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
               {!isCollapsed && <span>{item.label}</span>}
               {!isCollapsed && item.badgeCount !== undefined && item.badgeCount > 0 && (
-                <span className="nav-link-badge">{item.badgeCount}</span>
+                <span
+                  className="nav-link-badge"
+                  aria-label={`${item.badgeCount} overdue follow-ups`}
+                >
+                  {item.badgeCount}
+                </span>
               )}
             </button>
           )
@@ -93,6 +102,7 @@ export function Sidebar({
                 configStatus.isConfigured ? 'beacon-emerald' : 'beacon-amber'
               }`}
               style={{ width: 8, height: 8 }}
+              aria-hidden="true"
             />
             <span style={{ fontWeight: 500 }}>
               {configStatus.isConfigured ? 'Supabase Connected' : 'Demo Mode (Unlinked)'}
@@ -106,6 +116,7 @@ export function Sidebar({
           onClick={onToggleCollapse}
           title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-expanded={!isCollapsed}
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           {!isCollapsed && <span style={{ fontSize: '0.8rem' }}>Collapse</span>}

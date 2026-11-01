@@ -1,3 +1,4 @@
+import { useState, type FormEvent } from 'react'
 import { Menu, Search } from 'lucide-react'
 import type { NavTab } from '../../types/navigation'
 import { Button } from '../ui/Button'
@@ -7,13 +8,17 @@ export interface HeaderProps {
   activeTab: NavTab
   onToggleMobileMenu: () => void
   onQuickNewLead?: () => void
+  onQuickSearch?: (query: string) => void
 }
 
 export function Header({
   activeTab,
   onToggleMobileMenu,
   onQuickNewLead,
+  onQuickSearch,
 }: HeaderProps) {
+  const [searchText, setSearchText] = useState('')
+
   const titles: Record<NavTab, { title: string; subtitle: string }> = {
     dashboard: {
       title: 'Academy Dashboard',
@@ -39,6 +44,13 @@ export function Header({
 
   const currentMeta = titles[activeTab] || titles.dashboard
 
+  const handleSearchSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    if (onQuickSearch) {
+      onQuickSearch(searchText.trim())
+    }
+  }
+
   return (
     <header className="app-header">
       <div className="header-left">
@@ -46,7 +58,7 @@ export function Header({
           type="button"
           className="mobile-menu-trigger"
           onClick={onToggleMobileMenu}
-          aria-label="Open mobile menu"
+          aria-label="Open mobile navigation menu"
         >
           <Menu size={22} />
         </button>
@@ -58,21 +70,28 @@ export function Header({
       </div>
 
       <div className="header-right">
-        <div className="header-search-box">
-          <Search size={16} className="search-icon" />
+        <form
+          className="header-search-box"
+          role="search"
+          onSubmit={handleSearchSubmit}
+        >
+          <Search size={16} className="search-icon" aria-hidden="true" />
           <input
             type="search"
             className="header-search-input"
-            placeholder="Search leads, phone..."
-            aria-label="Quick search"
+            placeholder="Search leads, phone... (Enter)"
+            aria-label="Quick search student leads by name, phone, or email"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
-        </div>
+        </form>
 
         {onQuickNewLead && (
           <Button
             size="sm"
             variant="primary"
             onClick={onQuickNewLead}
+            aria-label="Create new student lead"
           >
             + New Lead
           </Button>

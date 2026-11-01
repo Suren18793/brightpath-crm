@@ -56,6 +56,12 @@ function AppContent() {
     setActiveTab('leads')
   }
 
+  const handleGlobalQuickSearch = (query: string) => {
+    setFocusLeadId(null)
+    setFocusLeadName(query || null)
+    setActiveTab('leads')
+  }
+
   const staffName = profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Staff Member')
 
   return (
@@ -72,6 +78,7 @@ function AppContent() {
       userName={staffName}
       unreadFollowupsCount={overdueFollowupsCount}
       onQuickNewLead={handleGlobalQuickNewLead}
+      onQuickSearch={handleGlobalQuickSearch}
     >
       {/* Top Supabase Diagnostic Banner & Assistant */}
       <ConfigNotice />

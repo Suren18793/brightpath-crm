@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react'
+import { ToastContainer } from '../components/feedback/ToastContainer'
 
 export type ToastType = 'success' | 'error' | 'info'
 
@@ -25,7 +25,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback(
     (message: string, type: ToastType = 'success', durationMs = 3500) => {
-      const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
       const newItem: ToastItem = { id, message, type }
 
       setToasts((prev) => [...prev, newItem])
@@ -40,27 +40,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast, removeToast }}>
       {children}
-      {/* Toast Notification Container */}
-      <div className="crm-toast-container" aria-live="polite">
-        {toasts.map((toast) => (
-          <div key={toast.id} className={`crm-toast-item toast-${toast.type}`} role="status">
-            <div className="toast-icon">
-              {toast.type === 'success' && <CheckCircle2 size={16} className="text-emerald-500" />}
-              {toast.type === 'error' && <AlertCircle size={16} className="text-rose-500" />}
-              {toast.type === 'info' && <Info size={16} className="text-blue-500" />}
-            </div>
-            <div className="toast-message">{toast.message}</div>
-            <button
-              type="button"
-              className="toast-close-btn"
-              onClick={() => removeToast(toast.id)}
-              aria-label="Dismiss notification"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        ))}
-      </div>
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </ToastContext.Provider>
   )
 }

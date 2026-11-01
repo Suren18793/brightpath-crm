@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react'
 import {
   Users,
   UserPlus,
@@ -20,9 +21,20 @@ export function KpiGrid({
   onNavigateToLeads,
   onNavigateToFollowUps,
 }: KpiGridProps) {
+  const handleCardKeyDown = (
+    e: KeyboardEvent<HTMLDivElement>,
+    callback?: () => void
+  ) => {
+    if (!callback) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      callback()
+    }
+  }
+
   if (isLoading) {
     return (
-      <div className="dashboard-kpi-grid-5">
+      <div className="dashboard-kpi-grid-5" aria-busy="true" aria-label="Loading KPI Metrics">
         {Array.from({ length: 5 }).map((_, idx) => (
           <div key={idx} className="kpi-card-v2 skeleton-card">
             <div className="skeleton-box skeleton-text-sub" style={{ width: '55%' }} />
@@ -35,17 +47,19 @@ export function KpiGrid({
   }
 
   return (
-    <div className="dashboard-kpi-grid-5">
+    <div className="dashboard-kpi-grid-5" role="region" aria-label="Key Performance Indicators">
       {/* 1. Total Accessible Leads */}
       <div
         className="kpi-card-v2 kpi-theme-blue"
         onClick={onNavigateToLeads}
+        onKeyDown={(e) => handleCardKeyDown(e, onNavigateToLeads)}
         role={onNavigateToLeads ? 'button' : undefined}
         tabIndex={onNavigateToLeads ? 0 : undefined}
+        aria-label={`Total Accessible Leads: ${metrics.totalLeads}. Click to view all leads.`}
       >
         <div className="kpi-v2-top">
           <span className="kpi-v2-label">Total Accessible Leads</span>
-          <div className="kpi-v2-icon icon-blue">
+          <div className="kpi-v2-icon icon-blue" aria-hidden="true">
             <Users size={17} />
           </div>
         </div>
@@ -59,12 +73,14 @@ export function KpiGrid({
       <div
         className="kpi-card-v2 kpi-theme-indigo"
         onClick={onNavigateToLeads}
+        onKeyDown={(e) => handleCardKeyDown(e, onNavigateToLeads)}
         role={onNavigateToLeads ? 'button' : undefined}
         tabIndex={onNavigateToLeads ? 0 : undefined}
+        aria-label={`New Enquiries: ${metrics.newLeadsCount}. Click to view leads.`}
       >
         <div className="kpi-v2-top">
           <span className="kpi-v2-label">New Enquiries</span>
-          <div className="kpi-v2-icon icon-indigo">
+          <div className="kpi-v2-icon icon-indigo" aria-hidden="true">
             <UserPlus size={17} />
           </div>
         </div>
@@ -76,12 +92,14 @@ export function KpiGrid({
       <div
         className="kpi-card-v2 kpi-theme-emerald"
         onClick={onNavigateToLeads}
+        onKeyDown={(e) => handleCardKeyDown(e, onNavigateToLeads)}
         role={onNavigateToLeads ? 'button' : undefined}
         tabIndex={onNavigateToLeads ? 0 : undefined}
+        aria-label={`Converted Admissions: ${metrics.convertedLeadsCount}. Click to view leads.`}
       >
         <div className="kpi-v2-top">
           <span className="kpi-v2-label">Converted Admissions</span>
-          <div className="kpi-v2-icon icon-emerald">
+          <div className="kpi-v2-icon icon-emerald" aria-hidden="true">
             <GraduationCap size={17} />
           </div>
         </div>
@@ -95,12 +113,14 @@ export function KpiGrid({
           metrics.overdueFollowUpsCount > 0 ? 'kpi-theme-rose-alert' : 'kpi-theme-slate'
         }`}
         onClick={onNavigateToFollowUps}
+        onKeyDown={(e) => handleCardKeyDown(e, onNavigateToFollowUps)}
         role={onNavigateToFollowUps ? 'button' : undefined}
         tabIndex={onNavigateToFollowUps ? 0 : undefined}
+        aria-label={`Overdue Follow-Ups: ${metrics.overdueFollowUpsCount}. Click to open scheduler.`}
       >
         <div className="kpi-v2-top">
           <span className="kpi-v2-label">Overdue Follow-Ups</span>
-          <div className="kpi-v2-icon icon-rose">
+          <div className="kpi-v2-icon icon-rose" aria-hidden="true">
             <AlertCircle size={17} />
           </div>
         </div>
@@ -113,10 +133,13 @@ export function KpiGrid({
       </div>
 
       {/* 5. Conversion Rate % (Converted / Total * 100, division-by-zero protected) */}
-      <div className="kpi-card-v2 kpi-theme-amber">
+      <div
+        className="kpi-card-v2 kpi-theme-amber"
+        aria-label={`Conversion Rate: ${metrics.conversionRate.toFixed(1)} percent`}
+      >
         <div className="kpi-v2-top">
           <span className="kpi-v2-label">Conversion Rate</span>
-          <div className="kpi-v2-icon icon-amber">
+          <div className="kpi-v2-icon icon-amber" aria-hidden="true">
             <TrendingUp size={17} />
           </div>
         </div>
