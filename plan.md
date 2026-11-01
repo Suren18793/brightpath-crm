@@ -26,7 +26,7 @@
 - [x] **Phase 6: Lead Creation & Edit Modal with Strict Validation** *(Completed: Commit `b94b972`)*
 - [x] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule** *(Completed: Commit `abc6c21`)*
 - [x] **Phase 8: Follow-Up Scheduling & Overdue Management Engine** *(Completed: Commit `b486b83`)*
-- [ ] **Phase 9: Lead Detail View & Audit Activity Timeline**
+- [x] **Phase 9: Lead Detail View & Audit Activity Timeline** *(Completed: Commit `d18e698`)*
 - [ ] **Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs**
 - [ ] **Phase 11: Reports & Audit CSV Export**
 - [ ] **Phase 12: Accessibility, Mobile Drawer & Error Polish**
@@ -188,19 +188,14 @@
 ---
 
 ### Phase 9: Lead Detail View & Audit Activity Timeline
+- **Status**: **COMPLETED** (Commit: `d18e698`)
 - **Goal**: Provide a full 360° lead detail view with interaction history.
-- **What to Implement**:
-  - Slide-over drawer / page displaying contact details, course, source, counsellor.
-  - Contact quick actions (Call, WhatsApp, Email).
-  - Notes viewer with "Add Note" quick form.
-  - Scheduled follow-ups section for this lead.
-  - Chronological Activity Timeline displaying lead creation, status changes, notes, follow-up events.
-- **Target Files**:
-  - `src/features/leads/LeadDetailView.tsx`
-  - `src/features/activity/ActivityTimeline.tsx`
-  - `src/features/activity/ActivityItem.tsx`
-- **Acceptance Criteria**:
-  - Every action performed on a lead shows up in the timeline with actor name and timestamp.
+- **Delivered**:
+  - `src/features/activity/ActivityItem.tsx`: Chronological audit node rendering semantic icon badges, status transition pills (`from_status → to_status`), `lost_reason` callouts, actor attribution, and timestamps.
+  - `src/features/activity/ActivityTimeline.tsx`: Vertical connected timeline feed with loading skeletons and empty state.
+  - `src/features/leads/LeadDetailView.tsx`: Slide-over 360° drawer displaying student metadata, 1-click Call/WhatsApp/Email outreach buttons, inline [`LeadStatusSelect`](file:///c:/Users/kanha/brightpath-crm/src/features/leads/LeadStatusSelect.tsx), counselling notes viewer + "Add Note" quick form, lead-specific follow-ups list + "+ Schedule" modal trigger, and live [`ActivityTimeline`](file:///c:/Users/kanha/brightpath-crm/src/features/activity/ActivityTimeline.tsx).
+  - `src/services/leadsService.ts`, `LeadListView.tsx`, `src/App.tsx`: Added [`addLeadNote`](file:///c:/Users/kanha/brightpath-crm/src/services/leadsService.ts#L702-L735) (persisting to `public.leads` and logging `'note_added'` to `public.activities`) and wired row/card clicks and Follow-Up "View Lead" jumps directly to the 360° drawer.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
