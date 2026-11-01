@@ -29,7 +29,7 @@
 - [x] **Phase 9: Lead Detail View & Audit Activity Timeline** *(Completed: Commit `d18e698`)*
 - [x] **Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs** *(Completed: Commit `da2802a`)*
 - [x] **Phase 11: Reports & Audit CSV Export** *(Completed: Commit `5b54340`)*
-- [ ] **Phase 12: Accessibility, Mobile Drawer & Error Polish**
+- [x] **Phase 12: Accessibility, Mobile Drawer & Error Polish** *(Completed: Commit `99c2d90`)*
 - [ ] **Phase 13: End-to-End Test Suite & Student Handover Documentation**
 - [ ] **Phase 14: GitHub Repository & Vercel Production Deployment**
 
@@ -225,19 +225,14 @@
 ---
 
 ### Phase 12: Accessibility, Mobile Drawer & Error Polish
+- **Status**: **COMPLETED** (Commit: `99c2d90`)
 - **Goal**: Full responsive ergonomics, WCAG accessibility, and error boundaries.
-- **What to Implement**:
-  - React `ErrorBoundary` with reload button.
-  - Keyboard navigation: Modals trap focus, `Escape` closes dialogs, `:focus-visible` rings.
-  - Screen reader labels (`aria-label`) on all interactive icon buttons.
-  - Touch-friendly targets ($\ge 44\text{px}$) and smooth mobile drawer.
-- **Target Files**:
-  - `src/components/feedback/ErrorBoundary.tsx`
-  - `src/components/feedback/ToastContainer.tsx`
-  - `src/index.css`
-- **Acceptance Criteria**:
-  - App is fully navigable via keyboard only.
-  - Mobile layout is responsive and ergonomic on small viewports.
+- **Delivered**:
+  - `src/components/feedback/ErrorBoundary.tsx` & `src/main.tsx`: Global React error boundary catching uncaught runtime exceptions with **Reload Application** and **Reset Demo Cache & Reload** recovery buttons.
+  - `src/components/feedback/ToastContainer.tsx` & `src/context/ToastContext.tsx`: Extracted accessible notification stack with `role="region"`, `aria-live="polite"`, and `Escape` key dismissal.
+  - `src/components/layout/AppLayout.tsx`, `MobileNav.tsx`, `Sidebar.tsx`, `Header.tsx`, `KpiGrid.tsx`: Added WCAG `"Skip to main content"` shortcut link, `Escape` key close and body scroll lock on the mobile drawer, `aria-current="page"` and `aria-label` attributes, `Enter`/`Space` keyboard activation on KPI cards, and global quick search (`Enter` jumps to filtered Leads view).
+  - `src/index.css`: Added $\ge 44\text{px}$ mobile touch targets, error boundary layout styles, and `@media (prefers-reduced-motion: reduce)` support.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
