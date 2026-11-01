@@ -28,7 +28,7 @@
 - [x] **Phase 8: Follow-Up Scheduling & Overdue Management Engine** *(Completed: Commit `b486b83`)*
 - [x] **Phase 9: Lead Detail View & Audit Activity Timeline** *(Completed: Commit `d18e698`)*
 - [x] **Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs** *(Completed: Commit `da2802a`)*
-- [ ] **Phase 11: Reports & Audit CSV Export**
+- [x] **Phase 11: Reports & Audit CSV Export** *(Completed: Commit `5b54340`)*
 - [ ] **Phase 12: Accessibility, Mobile Drawer & Error Polish**
 - [ ] **Phase 13: End-to-End Test Suite & Student Handover Documentation**
 - [ ] **Phase 14: GitHub Repository & Vercel Production Deployment**
@@ -213,17 +213,14 @@
 ---
 
 ### Phase 11: Reports & Audit CSV Export
+- **Status**: **COMPLETED** (Commit: `5b54340`)
 - **Goal**: Summary reporting by lead source and secure data export.
-- **What to Implement**:
-  - Source Effectiveness table (Leads, Converted, Conversion %).
-  - Counsellor Workload table (Assigned leads, Completed follow-ups, Admissions).
-  - CSV Export: Client-side sanitized export of filtered leads.
-- **Target Files**:
-  - `src/features/reports/ReportsView.tsx`
-  - `src/services/reportsService.ts`
-  - `src/utils/csvExport.ts`
-- **Acceptance Criteria**:
-  - CSV exports successfully and opens cleanly in Excel/Numbers.
+- **Delivered**:
+  - `src/utils/csvExport.ts`: Implemented [`sanitizeCsvCell`](file:///c:/Users/kanha/brightpath-crm/src/utils/csvExport.ts#L8-L24) (neutralizing OWASP CSV formula injection on `=`, `+`, `-`, `@`, `\t`, `\r` and escaping quotes per RFC 4180), [`exportLeadsToCsv`](file:///c:/Users/kanha/brightpath-crm/src/utils/csvExport.ts#L53-L102), and [`exportReportsSummaryToCsv`](file:///c:/Users/kanha/brightpath-crm/src/utils/csvExport.ts#L107-L176) with UTF-8 BOM (`\uFEFF`) for clean Excel/Numbers compatibility.
+  - `src/services/reportsService.ts`: Implemented [`getReportsSummary`](file:///c:/Users/kanha/brightpath-crm/src/services/reportsService.ts#L69-L263) computing role-scoped, 100% reconciled Source Effectiveness, Counsellor Workload, and Course Demand breakdown tables.
+  - `src/features/reports/ReportsView.tsx`: Full executive Reports screen with Source Effectiveness table (including footer totals), Counsellor Workload & Admissions Performance table, Course Demand breakdown, and 1-click CSV export buttons.
+  - `src/features/leads/LeadListView.tsx`, `src/App.tsx`, `src/index.css`: Wired `<ReportsView />` into the Reports tab and added an inline **"Export CSV"** button in the Lead Management toolbar for exporting filtered leads.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
