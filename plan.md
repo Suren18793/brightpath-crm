@@ -27,7 +27,7 @@
 - [x] **Phase 7: Lead Status Progression Lifecycle & Lost Reason Rule** *(Completed: Commit `abc6c21`)*
 - [x] **Phase 8: Follow-Up Scheduling & Overdue Management Engine** *(Completed: Commit `b486b83`)*
 - [x] **Phase 9: Lead Detail View & Audit Activity Timeline** *(Completed: Commit `d18e698`)*
-- [ ] **Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs**
+- [x] **Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs** *(Completed: Commit `da2802a`)*
 - [ ] **Phase 11: Reports & Audit CSV Export**
 - [ ] **Phase 12: Accessibility, Mobile Drawer & Error Polish**
 - [ ] **Phase 13: End-to-End Test Suite & Student Handover Documentation**
@@ -200,26 +200,15 @@
 ---
 
 ### Phase 10: Real-Time Analytics Dashboard & Reconciled KPIs
+- **Status**: **COMPLETED** (Commit: `da2802a`)
 - **Goal**: Executive overview with truthful, mathematically reconciled metrics.
-- **What to Implement**:
-  - 5 KPI Cards:
-    1. Total Accessible Leads
-    2. New Leads (`status = 'New'`)
-    3. Converted Leads (`status = 'Converted'`)
-    4. Overdue Follow-ups (`status = 'pending' AND due_at < now()`)
-    5. Conversion Rate % ($\frac{\text{Converted}}{\text{Total}} \times 100$, division-by-zero protected)
-  - Visual distributions: Leads by Status bar, Leads by Source breakdown.
-  - Urgent Action Cards: Overdue follow-ups list, Recent leads list.
-  - Role-scoped metrics (counsellor sees personal counts, manager/admin sees team aggregate).
-- **Target Files**:
-  - `src/services/metricsService.ts`
-  - `src/features/dashboard/DashboardView.tsx`
-  - `src/features/dashboard/KpiGrid.tsx`
-  - `src/features/dashboard/PipelineChart.tsx`
-  - `src/features/dashboard/RecentLeadsCard.tsx`
-- **Acceptance Criteria**:
-  - Dashboard counts reconcile 100% with the Lead List counts.
-  - Handles 0 leads without NaN or layout breaks.
+- **Delivered**:
+  - `src/services/metricsService.ts`: Implemented [`getDashboardMetrics`](file:///c:/Users/kanha/brightpath-crm/src/services/metricsService.ts#L68-L171) computing role-scoped, 100% reconciled counts across [`leadsService`](file:///c:/Users/kanha/brightpath-crm/src/services/leadsService.ts) and [`followUpsService`](file:///c:/Users/kanha/brightpath-crm/src/services/followUpsService.ts) with division-by-zero protection (`0` leads $\rightarrow$ `0.0%` without `NaN`).
+  - `src/features/dashboard/KpiGrid.tsx`: 5 interactive KPI cards (`Total Accessible Leads`, `New Enquiries`, `Converted Admissions`, `Overdue Follow-Ups`, `Conversion Rate %`) with loading skeletons and direct navigation hooks.
+  - `src/features/dashboard/PipelineChart.tsx`: Stacked horizontal 5-stage pipeline distribution bar (`New`, `Contacted`, `Qualified`, `Converted`, `Lost`) and channel ROI progress breakdown (`Website`, `Walk-in`, `Phone Call`, `WhatsApp`, `Referral`, `Other`).
+  - `src/features/dashboard/RecentLeadsCard.tsx`: Top 5 recent student enquiries table (click any row to open the 360° Lead Detail Drawer) and Urgent & Overdue Follow-Up Action Queue with 1-click "Mark Done" completion.
+  - `src/features/dashboard/DashboardView.tsx`, `src/App.tsx`, `src/index.css`: Replaced static placeholder dashboard with live [`DashboardView`](file:///c:/Users/kanha/brightpath-crm/src/features/dashboard/DashboardView.tsx) and responsive 5-column KPI grid styles.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors.
 
 ---
 
