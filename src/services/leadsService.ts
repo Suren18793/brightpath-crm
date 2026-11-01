@@ -12,6 +12,12 @@ import type {
 import type { UserRole } from '../types/auth'
 
 const STORAGE_KEY = 'brightpath_crm_mock_leads'
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function toValidUuidOrNull(value?: string | null): string | null {
+  if (!value) return null
+  return UUID_REGEX.test(value) ? value : null
+}
 
 export const SEED_LEADS: Lead[] = [
   {
@@ -445,8 +451,8 @@ export const leadsService = {
       assignedTo = currentUserId
     }
 
-    // 1. Live Supabase Insert
-    if (configStatus.isConfigured && currentUserId) {
+    // 1. Live Supabase Insert whenever configured
+    if (configStatus.isConfigured) {
       try {
         const { data, error } = await supabase
           .from('leads')
@@ -457,8 +463,8 @@ export const leadsService = {
             course_interest: input.course_interest,
             source: input.source,
             status: effectiveStatus,
-            assigned_to: assignedTo,
-            created_by: currentUserId,
+            assigned_to: toValidUuidOrNull(assignedTo),
+            created_by: toValidUuidOrNull(currentUserId),
             notes: input.notes?.trim() || null,
           })
           .select(`
@@ -556,10 +562,10 @@ export const leadsService = {
   async updateLead(
     id: string,
     updates: UpdateLeadInput,
-    currentUserId?: string | null
+    _currentUserId?: string | null
   ): Promise<Lead> {
-    // 1. Live Supabase Update (only when authenticated with a real Supabase session)
-    if (configStatus.isConfigured && currentUserId) {
+    // 1. Live Supabase Update whenever configured and id is a valid UUID
+    if (configStatus.isConfigured && toValidUuidOrNull(id)) {
       try {
         const updatePayload: Record<string, any> = {
           updated_at: new Date().toISOString(),
@@ -572,7 +578,7 @@ export const leadsService = {
         if (updates.source !== undefined) updatePayload.source = updates.source
         if (updates.status !== undefined) updatePayload.status = updates.status
         if (updates.lost_reason !== undefined) updatePayload.lost_reason = updates.lost_reason
-        if (updates.assigned_to !== undefined) updatePayload.assigned_to = updates.assigned_to
+        if (updates.assigned_to !== undefined) updatePayload.assigned_to = toValidUuidOrNull(updates.assigned_to)
         if (updates.notes !== undefined) updatePayload.notes = updates.notes?.trim() || null
 
         const { data, error } = await supabase
@@ -678,6 +684,45 @@ export const leadsService = {
         from_status: fromStatus,
         to_status: toStatus,
         lost_reason: effectiveLostReason,
+      },
+    })
+
+    return updatedLead
+  },
+
+  /**
+   * Add a quick counselling note to a lead and record a 'note_added' activity event
+   */
+  async addLeadNote(
+    leadId: string,
+    noteText: string,
+    existingNotes?: string | null,
+    currentUserId?: string | null,
+    actorName = 'Staff Member'
+  ): Promise<Lead> {
+    const trimmed = noteText.trim()
+    if (!trimmed) {
+      throw new Error('Please enter a counselling note before saving.')
+    }
+
+    const combinedNotes = existingNotes?.trim()
+      ? `${trimmed}\n\nPrevious note: ${existingNotes.trim()}`
+      : trimmed
+
+    const updatedLead = await this.updateLead(
+      leadId,
+      { notes: combinedNotes },
+      currentUserId
+    )
+
+    await activitiesService.logActivity({
+      lead_id: leadId,
+      actor_id: currentUserId || 'demo-counsellor-001',
+      actor_name: actorName,
+      activity_type: 'note_added',
+      description: `Added counselling note: "${trimmed}"`,
+      metadata: {
+        note: trimmed,
       },
     })
 

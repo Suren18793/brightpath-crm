@@ -12,6 +12,12 @@ import type { UserRole } from '../types/auth'
 import type { LeadStatus } from '../types/leads'
 
 const FOLLOWUPS_STORAGE_KEY = 'brightpath_crm_mock_followups'
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function toValidUuidOrNull(value?: string | null): string | null {
+  if (!value) return null
+  return UUID_REGEX.test(value) ? value : null
+}
 
 export const SEED_FOLLOWUPS: FollowUpRecord[] = [
   {
@@ -185,7 +191,7 @@ export const followUpsService = {
     userRole: UserRole = 'counsellor',
     currentUserId?: string | null
   ): Promise<FetchFollowUpsResult> {
-    if (configStatus.isConfigured && currentUserId) {
+    if (configStatus.isConfigured) {
       try {
         let query = supabase
           .from('follow_ups')
@@ -196,7 +202,7 @@ export const followUpsService = {
           `)
           .order('due_at', { ascending: true })
 
-        if (userRole === 'counsellor') {
+        if (userRole === 'counsellor' && currentUserId) {
           query = query.or(
             `assigned_to.eq.${currentUserId},created_by.eq.${currentUserId},assigned_to.is.null`
           )
@@ -204,7 +210,7 @@ export const followUpsService = {
 
         const { data, error } = await query
 
-        if (!error && data) {
+        if (!error && data && (data.length > 0 || currentUserId)) {
           const followUps: FollowUpRecord[] = data.map((row: any) => ({
             id: row.id,
             lead_id: row.lead_id,
@@ -293,18 +299,18 @@ export const followUpsService = {
       assignedTo = currentUserId || 'demo-counsellor-001'
     }
 
-    // 1. Live Supabase Insert when authenticated
-    if (configStatus.isConfigured && currentUserId) {
+    // 1. Live Supabase Insert whenever configured
+    if (configStatus.isConfigured && toValidUuidOrNull(input.lead_id)) {
       try {
         const { data, error } = await supabase
           .from('follow_ups')
           .insert({
             lead_id: input.lead_id,
-            assigned_to: assignedTo,
+            assigned_to: toValidUuidOrNull(assignedTo),
             due_at: input.due_at,
             note: trimmedNote,
             status: 'pending',
-            created_by: currentUserId,
+            created_by: toValidUuidOrNull(currentUserId),
           })
           .select(`
             *,
@@ -403,8 +409,8 @@ export const followUpsService = {
   ): Promise<FollowUpRecord> {
     const completedAt = new Date().toISOString()
 
-    // 1. Live Supabase Update when authenticated
-    if (configStatus.isConfigured && currentUserId) {
+    // 1. Live Supabase Update whenever configured and followUpId is a valid UUID
+    if (configStatus.isConfigured && toValidUuidOrNull(followUpId)) {
       try {
         const { data, error } = await supabase
           .from('follow_ups')
@@ -505,3 +511,4 @@ export const followUpsService = {
     return stats
   },
 }
+

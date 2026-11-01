@@ -15,16 +15,19 @@ import { LeadTable } from './LeadTable'
 import { LeadCardMobile } from './LeadCardMobile'
 import { LeadModal } from './LeadModal'
 import { LostReasonModal } from './LostReasonModal'
+import { LeadDetailView } from './LeadDetailView'
 import { Button } from '../../components/ui/Button'
 
 export interface LeadListViewProps {
   openCreateSignal?: number
+  focusLeadId?: string | null
   focusLeadName?: string | null
   onSelectLead?: (lead: Lead) => void
 }
 
 export function LeadListView({
   openCreateSignal,
+  focusLeadId,
   focusLeadName,
   onSelectLead,
 }: LeadListViewProps) {
@@ -51,6 +54,10 @@ export function LeadListView({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [leadToEdit, setLeadToEdit] = useState<Lead | null>(null)
 
+  // Slide-over 360° Lead Detail Drawer state
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
+  const selectedLead = leads.find((l) => l.id === selectedLeadId) || null
+
   // Status transition & Lost Reason Modal state
   const [updatingLeadId, setUpdatingLeadId] = useState<string | null>(null)
   const [pendingLostLead, setPendingLostLead] = useState<Lead | null>(null)
@@ -68,7 +75,7 @@ export function LeadListView({
     }
   }, [openCreateSignal])
 
-  // Apply search filter when jumping from a follow-up card
+  // Apply search filter or open detail drawer when jumping from a follow-up card
   useEffect(() => {
     if (focusLeadName) {
       setFilters({
@@ -76,7 +83,15 @@ export function LeadListView({
         searchQuery: focusLeadName,
       })
     }
-  }, [focusLeadName])
+    if (focusLeadId) {
+      setSelectedLeadId(focusLeadId)
+    }
+  }, [focusLeadId, focusLeadName])
+
+  const handleSelectLeadRow = (lead: Lead) => {
+    setSelectedLeadId(lead.id)
+    onSelectLead?.(lead)
+  }
 
   const handleOpenCreateModal = () => {
     setLeadToEdit(null)
@@ -337,7 +352,7 @@ export function LeadListView({
           filters={filters}
           onFilterChange={setFilters}
           onResetFilters={handleResetFilters}
-          onSelectLead={onSelectLead}
+          onSelectLead={handleSelectLeadRow}
           onEditLead={handleOpenEditModal}
           onStatusChange={handleStatusChange}
           updatingLeadId={updatingLeadId}
@@ -350,12 +365,29 @@ export function LeadListView({
           leads={leads}
           isLoading={isLoading}
           onResetFilters={handleResetFilters}
-          onSelectLead={onSelectLead}
+          onSelectLead={handleSelectLeadRow}
           onEditLead={handleOpenEditModal}
           onStatusChange={handleStatusChange}
           updatingLeadId={updatingLeadId}
         />
       </div>
+
+      {/* 360° Slide-Over Lead Detail Drawer */}
+      <LeadDetailView
+        lead={selectedLead}
+        isOpen={Boolean(selectedLead)}
+        onClose={() => setSelectedLeadId(null)}
+        onEditLead={(lead) => {
+          handleOpenEditModal(lead)
+        }}
+        onStatusChange={handleStatusChange}
+        onLeadUpdated={fetchLeads}
+        counsellors={counsellors}
+        userRole={role}
+        currentUserId={user?.id}
+        actorName={actorName}
+        isUpdatingStatus={updatingLeadId === selectedLead?.id}
+      />
 
       {/* Create / Edit Lead Modal */}
       <LeadModal

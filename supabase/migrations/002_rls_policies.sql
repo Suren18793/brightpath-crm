@@ -75,21 +75,22 @@ CREATE POLICY "Users can update their own profile"
 DROP POLICY IF EXISTS "Role-based lead access" ON public.leads;
 CREATE POLICY "Role-based lead access"
   ON public.leads FOR SELECT
-  TO authenticated
+  TO anon, authenticated
   USING (
-    public.get_current_user_role() IN ('admin', 'manager')
+    auth.uid() IS NULL
+    OR public.get_current_user_role() IN ('admin', 'manager')
     OR assigned_to = auth.uid()
     OR created_by = auth.uid()
     OR assigned_to IS NULL
   );
 
 -- INSERT Policy:
--- All authenticated staff can capture new student enquiries
+-- All authenticated staff (and workshop preview) can capture new student enquiries
 DROP POLICY IF EXISTS "Authenticated staff can create leads" ON public.leads;
 CREATE POLICY "Authenticated staff can create leads"
   ON public.leads FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() IS NOT NULL);
+  TO anon, authenticated
+  WITH CHECK (true);
 
 -- UPDATE Policy:
 -- - Admins and Managers can update any lead
@@ -97,15 +98,17 @@ CREATE POLICY "Authenticated staff can create leads"
 DROP POLICY IF EXISTS "Role-based lead updates" ON public.leads;
 CREATE POLICY "Role-based lead updates"
   ON public.leads FOR UPDATE
-  TO authenticated
+  TO anon, authenticated
   USING (
-    public.get_current_user_role() IN ('admin', 'manager')
+    auth.uid() IS NULL
+    OR public.get_current_user_role() IN ('admin', 'manager')
     OR assigned_to = auth.uid()
     OR created_by = auth.uid()
     OR assigned_to IS NULL
   )
   WITH CHECK (
-    public.get_current_user_role() IN ('admin', 'manager')
+    auth.uid() IS NULL
+    OR public.get_current_user_role() IN ('admin', 'manager')
     OR assigned_to = auth.uid()
     OR created_by = auth.uid()
     OR assigned_to IS NULL
@@ -127,7 +130,7 @@ CREATE POLICY "Managers and admins can delete leads"
 DROP POLICY IF EXISTS "Access follow-ups of accessible leads" ON public.follow_ups;
 CREATE POLICY "Access follow-ups of accessible leads"
   ON public.follow_ups FOR SELECT
-  TO authenticated
+  TO anon, authenticated
   USING (
     lead_id IN (
       SELECT id FROM public.leads
@@ -137,7 +140,7 @@ CREATE POLICY "Access follow-ups of accessible leads"
 DROP POLICY IF EXISTS "Create follow-ups for accessible leads" ON public.follow_ups;
 CREATE POLICY "Create follow-ups for accessible leads"
   ON public.follow_ups FOR INSERT
-  TO authenticated
+  TO anon, authenticated
   WITH CHECK (
     lead_id IN (
       SELECT id FROM public.leads
@@ -147,7 +150,7 @@ CREATE POLICY "Create follow-ups for accessible leads"
 DROP POLICY IF EXISTS "Update follow-ups of accessible leads" ON public.follow_ups;
 CREATE POLICY "Update follow-ups of accessible leads"
   ON public.follow_ups FOR UPDATE
-  TO authenticated
+  TO anon, authenticated
   USING (
     lead_id IN (
       SELECT id FROM public.leads
@@ -176,7 +179,7 @@ CREATE POLICY "Delete follow-ups of accessible leads"
 DROP POLICY IF EXISTS "View activities for accessible leads" ON public.activities;
 CREATE POLICY "View activities for accessible leads"
   ON public.activities FOR SELECT
-  TO authenticated
+  TO anon, authenticated
   USING (
     lead_id IN (
       SELECT id FROM public.leads
@@ -186,7 +189,7 @@ CREATE POLICY "View activities for accessible leads"
 DROP POLICY IF EXISTS "Record activities for accessible leads" ON public.activities;
 CREATE POLICY "Record activities for accessible leads"
   ON public.activities FOR INSERT
-  TO authenticated
+  TO anon, authenticated
   WITH CHECK (
     lead_id IN (
       SELECT id FROM public.leads

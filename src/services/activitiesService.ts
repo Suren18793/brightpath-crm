@@ -108,6 +108,13 @@ export const SEED_ACTIVITIES: ActivityRecord[] = [
   },
 ]
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function toValidUuidOrNull(value?: string | null): string | null {
+  if (!value) return null
+  return UUID_REGEX.test(value) ? value : null
+}
+
 export const activitiesService = {
   /**
    * Load local fallback activities from LocalStorage
@@ -141,15 +148,17 @@ export const activitiesService = {
    */
   async logActivity(input: LogActivityInput): Promise<ActivityRecord> {
     const metadataPayload: ActivityMetadata = input.metadata || {}
+    const validLeadUuid = toValidUuidOrNull(input.lead_id)
+    const validActorUuid = toValidUuidOrNull(input.actor_id)
 
-    // 1. Live Supabase Insert when authenticated
-    if (configStatus.isConfigured && input.actor_id && !input.actor_id.startsWith('demo-')) {
+    // 1. Live Supabase Insert whenever configured
+    if (configStatus.isConfigured && validLeadUuid) {
       try {
         const { data, error } = await supabase
           .from('activities')
           .insert({
-            lead_id: input.lead_id,
-            actor_id: input.actor_id,
+            lead_id: validLeadUuid,
+            actor_id: validActorUuid,
             activity_type: input.activity_type,
             description: input.description,
             metadata: metadataPayload,
@@ -172,7 +181,6 @@ export const activitiesService = {
             created_at: data.created_at,
           }
         }
-        console.warn('[activitiesService] Supabase insert fell back to local store:', error?.message)
       } catch (err) {
         console.warn('[activitiesService] Supabase insert exception, using local store:', err)
       }
@@ -205,9 +213,11 @@ export const activitiesService = {
    */
   async getActivitiesByLead(
     leadId: string,
-    currentUserId?: string | null
+    _currentUserId?: string | null
   ): Promise<ActivityRecord[]> {
-    if (configStatus.isConfigured && currentUserId) {
+    const validLeadUuid = toValidUuidOrNull(leadId)
+
+    if (configStatus.isConfigured && validLeadUuid) {
       try {
         const { data, error } = await supabase
           .from('activities')
@@ -215,7 +225,7 @@ export const activitiesService = {
             *,
             actor:profiles!activities_actor_id_fkey(id, full_name)
           `)
-          .eq('lead_id', leadId)
+          .eq('lead_id', validLeadUuid)
           .order('created_at', { ascending: false })
 
         if (!error && data && data.length > 0) {

@@ -28,6 +28,7 @@ import type { UserRole } from './types/auth'
 function AppContent() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard')
   const [openCreateSignal, setOpenCreateSignal] = useState<number>(0)
+  const [focusLeadId, setFocusLeadId] = useState<string | null>(null)
   const [focusLeadName, setFocusLeadName] = useState<string | null>(null)
   const [overdueFollowupsCount, setOverdueFollowupsCount] = useState<number>(2)
   const { showToast } = useToast()
@@ -49,17 +50,16 @@ function AppContent() {
   }, [userRole, user?.id, activeTab])
 
   const handleGlobalQuickNewLead = () => {
+    setFocusLeadId(null)
     setFocusLeadName(null)
     setActiveTab('leads')
     setOpenCreateSignal((prev) => prev + 1)
   }
 
-  const handleJumpToLead = (_leadId: string, leadName?: string) => {
+  const handleJumpToLead = (leadId: string, leadName?: string) => {
+    setFocusLeadId(leadId)
     setFocusLeadName(leadName || null)
     setActiveTab('leads')
-    if (leadName) {
-      showToast(`Filtered leads for "${leadName}"`, 'info')
-    }
   }
 
   const staffName = profile?.full_name || (user?.email ? user.email.split('@')[0] : 'Staff Member')
@@ -68,7 +68,10 @@ function AppContent() {
     <AppLayout
       activeTab={activeTab}
       onSelectTab={(tab) => {
-        if (tab !== 'leads') setFocusLeadName(null)
+        if (tab !== 'leads') {
+          setFocusLeadId(null)
+          setFocusLeadName(null)
+        }
         setActiveTab(tab)
       }}
       userRole={userRole}
@@ -325,8 +328,8 @@ function AppContent() {
       {activeTab === 'leads' && (
         <LeadListView
           openCreateSignal={openCreateSignal}
+          focusLeadId={focusLeadId}
           focusLeadName={focusLeadName}
-          onSelectLead={(lead) => showToast(`Selected enquiry: ${lead.full_name}`, 'info')}
         />
       )}
 
