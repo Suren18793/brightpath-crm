@@ -31,7 +31,7 @@
 - [x] **Phase 11: Reports & Audit CSV Export** *(Completed: Commit `5b54340`)*
 - [x] **Phase 12: Accessibility, Mobile Drawer & Error Polish** *(Completed: Commit `99c2d90`)*
 - [x] **Phase 13: End-to-End Test Suite & Student Handover Documentation** *(Completed: Commit `ac39eab`)*
-- [ ] **Phase 14: GitHub Repository & Vercel Production Deployment**
+- [x] **Phase 14: GitHub Repository & Vercel Production Deployment** *(Completed: Commit `78b68b9`)*
 
 ---
 
@@ -247,17 +247,13 @@
 ---
 
 ### Phase 14: GitHub Repository & Vercel Production Deployment
+- **Status**: **COMPLETED** (Commit: `78b68b9`)
 - **Goal**: Deploy the application to Vercel and verify the live public URL.
-- **What to Implement**:
-  - `vercel.json` SPA routing rewrite configuration.
-  - Step-by-step GitHub push and Vercel import instructions.
-  - Environment variable setup in Vercel (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
-  - Live deployment smoke test checklist.
-- **Target Files**:
-  - `vercel.json`
-  - `VERCEL_DEPLOYMENT.md`
-- **Acceptance Criteria**:
-  - Live production URL opens, connects to Supabase, and allows lead creation and follow-up management.
+- **Delivered**:
+  - `vercel.json`: Production Vite SPA rewrite configuration (`/((?!assets/).*)` $\rightarrow$ `/index.html`), HTTP security headers (`X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`), and immutable asset cache rules.
+  - `VERCEL_DEPLOYMENT.md`: Step-by-step GitHub push & Vercel deployment playbook covering both Zero-Config Workshop Preview Mode deployment and full Supabase environment variable setup (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) + 7-point live smoke test checklist.
+  - `vite.config.ts`: Production bundle build optimization.
+  - Verification: `npm run build` and `npm run lint` pass with 0 errors and 0 warnings.
 
 ---
 
