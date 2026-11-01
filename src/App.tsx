@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import {
-  TrendingUp,
   LogIn,
   Sparkles,
   ShieldCheck,
@@ -16,6 +15,7 @@ import { SignInModal } from './features/auth/SignInModal'
 import { DashboardView } from './features/dashboard/DashboardView'
 import { LeadListView } from './features/leads/LeadListView'
 import { FollowUpListView } from './features/followups/FollowUpListView'
+import { ReportsView } from './features/reports/ReportsView'
 import { followUpsService } from './services/followUpsService'
 import type { UserRole } from './types/auth'
 
@@ -189,80 +189,7 @@ function AppContent() {
       )}
 
       {/* VIEW: REPORTS */}
-      {activeTab === 'reports' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <TrendingUp size={18} />
-              <span>Conversion & Intake Reports</span>
-            </CardTitle>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => showToast('CSV export will be available in Phase 11')}
-            >
-              Export CSV
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="grid-2">
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-app)',
-                  border: '1px solid var(--border-subtle)',
-                }}
-              >
-                <h4 style={{ margin: '0 0 0.5rem', fontWeight: 700 }}>Source Performance</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Website Enquiries</span>
-                    <strong>48 leads (24% Conv.)</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Walk-ins</span>
-                    <strong>32 leads (40% Conv.)</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>WhatsApp Chats</span>
-                    <strong>28 leads (18% Conv.)</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Referrals</span>
-                    <strong>20 leads (65% Conv.)</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-app)',
-                  border: '1px solid var(--border-subtle)',
-                }}
-              >
-                <h4 style={{ margin: '0 0 0.5rem', fontWeight: 700 }}>Course Popularity</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>JEE Masterclass</span>
-                    <strong>52 enquiries</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>NEET Comprehensive</span>
-                    <strong>44 enquiries</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Full Stack Web Dev</span>
-                    <strong>32 enquiries</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {activeTab === 'reports' && <ReportsView />}
 
       {/* VIEW: SETTINGS */}
       {activeTab === 'settings' && (

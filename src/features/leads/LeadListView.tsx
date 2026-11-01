@@ -4,10 +4,12 @@ import {
   RefreshCw,
   Database,
   Sparkles,
+  Download,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { leadsService } from '../../services/leadsService'
+import { exportLeadsToCsv } from '../../utils/csvExport'
 import type { Lead, LeadStatus, LeadFilterState, LeadStats } from '../../types/leads'
 import { INITIAL_LEAD_FILTERS } from '../../types/leads'
 import { LeadFilterBar } from './LeadFilterBar'
@@ -252,6 +254,24 @@ export function LeadListView({
         </div>
 
         <div className="lead-view-actions">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              if (leads.length === 0) {
+                showToast('No leads matching current filters to export.', 'info')
+                return
+              }
+              const count = exportLeadsToCsv(leads)
+              showToast(`Exported ${count} filtered lead${count === 1 ? '' : 's'} to CSV.`, 'success')
+            }}
+            disabled={isLoading || leads.length === 0}
+            title="Export filtered leads to sanitized CSV"
+          >
+            <Download size={14} />
+            <span>Export CSV ({leads.length})</span>
+          </Button>
+
           <Button
             variant="secondary"
             size="sm"

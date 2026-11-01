@@ -3793,6 +3793,13 @@ button, input, select, textarea {
   transition: width 0.35s ease;
 }
 
+.reports-table-footer td {
+  background: #f8fafc;
+  font-weight: 800;
+  color: var(--text-main);
+  border-top: 2px solid var(--border-strong);
+}
+
 @media (max-width: 1200px) {
   .dashboard-kpi-grid-5 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
